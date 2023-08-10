@@ -1,6 +1,8 @@
 from enum import Enum
 
 class TokenTypes(Enum):
+    EOF = ''
+    
     PLUS = '+'
     MINUS = '-'
     MULTIPLY = '*'
@@ -17,6 +19,6 @@ class TokenTypes(Enum):
     SINGLE_QUOTE = "'"
 
 class Token:
-    def __init__(self, type: TokenTypes, literal: str):
+    def __init__(self, type: TokenTypes, literal: str = None):
         self.type = type
-        self.literal = literal
+        self.literal = (literal or type.value)
