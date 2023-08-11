@@ -5,6 +5,9 @@ class TokenTypes(Enum):
     EOF = ''
     EOL = '\n'
     
+    # Identifier (e.g. names of functions and variables)
+    IDENTIFIER = 'IDENTIFIER'
+    
     # Operators
     PLUS = '+'
     HYPHEN = '-'

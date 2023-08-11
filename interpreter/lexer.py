@@ -64,6 +64,12 @@ class Lexer:
         while (self._is_whitespace()):
             self._next_char()
     
+    def _is_letter_or_underscore(self):
+        return (('a' <= self._char <= 'b') or ('A' <= self._char <= 'Z') or (self._char == '_'))
+
+    def _read_identifier(self):
+        pass
+    
     def get_next_token(self) -> Token:
         self._next_char()
         self._skip_whitespace()
