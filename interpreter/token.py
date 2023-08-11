@@ -3,6 +3,7 @@ from enum import Enum
 class TokenTypes(Enum):
     ILLEGAL = 'ILLEGAL'
     EOF = ''
+    EOL = '\n'
     
     # Operators
     PLUS = '+'
@@ -48,5 +49,5 @@ class Token:
         self.type = type
         self.literal = literal
     
-    def __str__(self) -> str:
-        return f'[TOKEN] - {self.type}: {self.literal}'
+    def __repr__(self) -> str:
+        return f'Token({self.type}, {repr(self.literal)})'

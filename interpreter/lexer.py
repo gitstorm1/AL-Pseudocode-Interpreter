@@ -6,6 +6,7 @@ class Lexer:
         # 1) Consist of a single character only.
         # 2) And this character does not appear as the first character in any multi-character token type.
         TokenTypes.EOF.value: TokenTypes.EOF,
+        TokenTypes.EOL.value: TokenTypes.EOL,
         TokenTypes.PLUS.value: TokenTypes.PLUS,
         TokenTypes.HYPHEN.value: TokenTypes.HYPHEN,
         TokenTypes.ASTERICK.value: TokenTypes.ASTERICK,
@@ -46,8 +47,23 @@ class Lexer:
             return TokenTypes.EOF.value
         return self._get_char_at(self._next_position)
     
+    def _is_whitespace(self):
+        match(self._char):
+            case ' ':
+                return True
+            case '\r':
+                return True
+            case '\t':
+                return True
+        return False
+    
+    def _skip_whitespace(self):
+        while (self._is_whitespace()):
+            self._next_char()
+    
     def get_next_token(self) -> Token:
         self._next_char()
+        self._skip_whitespace()
         
         simple_token_type: TokenTypes = self.SIMPLE_TOKEN_TYPES.get(self._char)
         if (simple_token_type):

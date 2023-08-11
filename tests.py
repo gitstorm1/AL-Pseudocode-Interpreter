@@ -1,6 +1,8 @@
 from interpreter.lexer import Lexer
 
-input = '+-*/%&()"\'<-<<><=>>='
+input = """+-*/%&()"\'<-<<>
+\t\r 
+<=>>="""
 lexer = Lexer(input)
 
 token = lexer.get_next_token()
