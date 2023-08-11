@@ -11,7 +11,6 @@ class TokenTypes(Enum):
     ASTERICK = '*'
     FORWARD_SLASH = '/'
     CARET = '^'
-    PERCENT = '%'
     MODULUS = 'MOD'
     INT_DIV = 'DIV'
     

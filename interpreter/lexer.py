@@ -12,7 +12,6 @@ class Lexer:
         TokenTypes.ASTERICK.value: TokenTypes.ASTERICK,
         TokenTypes.FORWARD_SLASH.value: TokenTypes.FORWARD_SLASH,
         TokenTypes.CARET.value: TokenTypes.CARET,
-        TokenTypes.PERCENT.value: TokenTypes.PERCENT,
         TokenTypes.COLON.value: TokenTypes.COLON,
         TokenTypes.EQUALS_TO.value: TokenTypes.EQUALS_TO,
         TokenTypes.AMPERSAND.value: TokenTypes.AMPERSAND,
