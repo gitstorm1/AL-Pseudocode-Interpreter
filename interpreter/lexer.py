@@ -9,8 +9,7 @@ class Lexer:
         TokenTypes.EOL.value: TokenTypes.EOL,
         TokenTypes.PLUS.value: TokenTypes.PLUS,
         TokenTypes.HYPHEN.value: TokenTypes.HYPHEN,
-        TokenTypes.ASTERICK.value: TokenTypes.ASTERICK,
-        TokenTypes.FORWARD_SLASH.value: TokenTypes.FORWARD_SLASH,
+        TokenTypes.ASTERISK.value: TokenTypes.ASTERISK,
         TokenTypes.CARET.value: TokenTypes.CARET,
         TokenTypes.COLON.value: TokenTypes.COLON,
         TokenTypes.EQUALS_TO.value: TokenTypes.EQUALS_TO,
@@ -21,7 +20,12 @@ class Lexer:
         TokenTypes.R_SQ_BRACKET.value: TokenTypes.R_SQ_BRACKET,
         TokenTypes.DOUBLE_QUOTE.value: TokenTypes.DOUBLE_QUOTE,
         TokenTypes.SINGLE_QUOTE.value: TokenTypes.SINGLE_QUOTE,
-        TokenTypes.COMMA.value: TokenTypes.PLUS,
+        TokenTypes.COMMA.value: TokenTypes.COMMA,
+    }
+    
+    KEYWORD_TOKEN_TYPES = {
+        TokenTypes.MODULUS.value: TokenTypes.MODULUS,
+        TokenTypes.INT_DIV.value: TokenTypes.INT_DIV,
     }
     
     def __init__(self, input: str):
@@ -69,25 +73,38 @@ class Lexer:
             return Token(simple_token_type, simple_token_type.value)
         
         match(self._char):
+            case TokenTypes.FORWARD_SLASH.value:
+                following_char = self._peek_char()
+                match(following_char):
+                    case TokenTypes.FORWARD_SLASH.value:
+                        self._next_char()
+                        return Token(TokenTypes.SINGLE_LINE_COMMENT, TokenTypes.SINGLE_LINE_COMMENT.value)
+                return Token(TokenTypes.FORWARD_SLASH, TokenTypes.FORWARD_SLASH.value)
+            
             case TokenTypes.L_ANGLE_BRACKET.value:
                 following_char = self._peek_char()
                 match(following_char):
                     case TokenTypes.HYPHEN.value:
                         self._next_char()
                         return Token(TokenTypes.ASSIGNMENT, TokenTypes.ASSIGNMENT.value)
+                    
                     case TokenTypes.R_ANGLE_BRACKET.value:
                         self._next_char()
                         return Token(TokenTypes.NOT_EQUALS_TO, TokenTypes.NOT_EQUALS_TO.value)
+                    
                     case TokenTypes.EQUALS_TO.value:
                         self._next_char()
                         return Token(TokenTypes.LESSER_OR_EQUALS_TO, TokenTypes.LESSER_OR_EQUALS_TO.value)
+                    
                 return Token(TokenTypes.L_ANGLE_BRACKET, TokenTypes.L_ANGLE_BRACKET.value)
+            
             case TokenTypes.R_ANGLE_BRACKET.value:
                 following_char = self._peek_char()
                 match(following_char):
                     case TokenTypes.EQUALS_TO.value:
                         self._next_char()
                         return Token(TokenTypes.GREATER_OR_EQUALS_TO, TokenTypes.GREATER_OR_EQUALS_TO.value)
+                    
                 return Token(TokenTypes.R_ANGLE_BRACKET, TokenTypes.R_ANGLE_BRACKET.value)
         
         return Token(TokenTypes.ILLEGAL, TokenTypes.ILLEGAL.value)

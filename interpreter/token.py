@@ -8,7 +8,7 @@ class TokenTypes(Enum):
     # Operators
     PLUS = '+'
     HYPHEN = '-'
-    ASTERICK = '*'
+    ASTERISK = '*'
     FORWARD_SLASH = '/'
     CARET = '^'
     MODULUS = 'MOD'
