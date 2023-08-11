@@ -65,7 +65,7 @@ class Lexer:
             self._next_char()
     
     def _is_letter_or_underscore(self):
-        return (('a' <= self._char <= 'b') or ('A' <= self._char <= 'Z') or (self._char == '_'))
+        return (('a' <= self._char <= 'z') or ('A' <= self._char <= 'Z') or (self._char == '_'))
 
     def _read_identifier(self):
         pass
