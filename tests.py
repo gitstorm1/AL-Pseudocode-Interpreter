@@ -7,3 +7,4 @@ token = lexer.get_next_token()
 while (token.type.value != ''):
     print(token)
     token = lexer.get_next_token()
+print(token)

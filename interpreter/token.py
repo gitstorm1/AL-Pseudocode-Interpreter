@@ -45,7 +45,7 @@ class TokenTypes(Enum):
 class Token:
     def __init__(self, type: TokenTypes, literal: str = None):
         self.type = type
-        self.literal = (literal or type.value)
+        self.literal = literal
     
     def __str__(self) -> str:
         return f'[TOKEN] - {self.type}: {self.literal}'
