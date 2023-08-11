@@ -1,6 +1,7 @@
 from enum import Enum
 
 class TokenTypes(Enum):
+    ILLEGAL = 'ILLEGAL'
     EOF = ''
     
     # Operators

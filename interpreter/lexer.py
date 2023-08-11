@@ -41,6 +41,11 @@ class Lexer:
         self._next_position += 1
         self._char = self._get_char_at(self._position)
     
+    def _peek_char(self):
+        if (self._next_position == len(self._input)):
+            return TokenTypes.EOF.value
+        return self._get_char_at(self._next_position)
+    
     def get_next_token(self) -> Token:
         self._next_char()
         
@@ -48,7 +53,26 @@ class Lexer:
         if (simple_token_type):
             return Token(simple_token_type, simple_token_type.value)
         
-        token: Token
+        match(self._char):
+            case TokenTypes.L_ANGLE_BRACKET.value:
+                following_char = self._peek_char()
+                match(following_char):
+                    case TokenTypes.HYPHEN.value:
+                        self._next_char()
+                        return Token(TokenTypes.ASSIGNMENT, TokenTypes.ASSIGNMENT.value)
+                    case TokenTypes.R_ANGLE_BRACKET.value:
+                        self._next_char()
+                        return Token(TokenTypes.NOT_EQUALS_TO, TokenTypes.NOT_EQUALS_TO.value)
+                    case TokenTypes.EQUALS_TO.value:
+                        self._next_char()
+                        return Token(TokenTypes.LESSER_OR_EQUALS_TO, TokenTypes.LESSER_OR_EQUALS_TO.value)
+                return Token(TokenTypes.L_ANGLE_BRACKET, TokenTypes.L_ANGLE_BRACKET.value)
+            case TokenTypes.R_ANGLE_BRACKET.value:
+                following_char = self._peek_char()
+                match(following_char):
+                    case TokenTypes.EQUALS_TO.value:
+                        self._next_char()
+                        return Token(TokenTypes.GREATER_OR_EQUALS_TO, TokenTypes.GREATER_OR_EQUALS_TO.value)
+                return Token(TokenTypes.R_ANGLE_BRACKET, TokenTypes.R_ANGLE_BRACKET.value)
         
-        
-        return token
+        return Token(TokenTypes.ILLEGAL, TokenTypes.ILLEGAL.value)
