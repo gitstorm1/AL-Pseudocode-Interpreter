@@ -2,8 +2,9 @@ from interpreter.token import Token, TokenTypes
 
 class Lexer:
     SIMPLE_TOKEN_TYPES = {
-        # Token types of single (or less) characters that are not present in any multi-character token types.
-        # e.g. the character of PLUS, '+', is not used in any composite token type, such as '++'.
+        # This dictionary contains token types that:
+        # 1) Consist of a single character only.
+        # 2) And this character does not appear as the first character in any multi-character token type.
         TokenTypes.EOF.value: TokenTypes.EOF,
         TokenTypes.PLUS.value: TokenTypes.PLUS,
         TokenTypes.HYPHEN.value: TokenTypes.HYPHEN,
