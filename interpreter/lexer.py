@@ -1,7 +1,7 @@
 from interpreter.token import Token, TokenTypes
 
 class Lexer:
-    SIMPLE_TOKEN_TYPES = {
+    SIMPLE_TOKEN_TYPES: dict[str, TokenTypes] = {
         # This dictionary contains token types that:
         # 1) Consist of a single character only.
         # 2) And this character does not appear as the first character in any multi-character token type.
@@ -23,21 +23,21 @@ class Lexer:
         TokenTypes.COMMA.value: TokenTypes.COMMA,
     }
     
-    KEYWORD_TOKEN_TYPES = {
+    KEYWORD_TOKEN_TYPES: dict[str, TokenTypes] = {
         TokenTypes.MODULUS.value: TokenTypes.MODULUS,
         TokenTypes.INT_DIV.value: TokenTypes.INT_DIV,
     }
     
-    def __init__(self, input: str):
-        self._input = input
-        self._position = -1
-        self._next_position = 0
-        self._char = ''
+    def __init__(self, input: str) -> None:
+        self._input: str = input
+        self._position: int = -1
+        self._next_position: int = 0
+        self._char: str = ''
     
-    def _read_char(self, position: int):
+    def _read_char(self, position: int) -> str:
         return self._input[position]
     
-    def _advance(self):
+    def _advance(self) -> None:
         if (self._next_position == len(self._input)):
             self._char = TokenTypes.EOF.value
             return
@@ -45,12 +45,12 @@ class Lexer:
         self._next_position += 1
         self._char = self._read_char(self._position)
     
-    def _peek_char(self):
+    def _peek_char(self) -> str:
         if (self._next_position == len(self._input)):
             return TokenTypes.EOF.value
         return self._read_char(self._next_position)
     
-    def _is_whitespace(self):
+    def _is_whitespace(self) -> bool:
         match(self._char):
             case ' ':
                 return True
@@ -60,18 +60,18 @@ class Lexer:
                 return True
         return False
     
-    def _skip_whitespace(self):
+    def _skip_whitespace(self) -> None:
         while (self._is_whitespace()):
             self._advance()
     
-    def _is_alpha_or_underscore(self):
+    def _is_alpha_or_underscore(self) -> bool:
         return ((self._char == '_') or (self._char.isalpha()))
     
-    def _is_alphanumeric_or_underscore(self, char: str):
+    def _is_alphanumeric_or_underscore(self, char: str) -> bool:
         return ((char == '_') or (char.isalnum()))
 
-    def _read_identifier(self):
-        start_pos = self._position
+    def _read_identifier(self) -> str:
+        start_pos: int = self._position
         end_pos: int
         while (self._is_alphanumeric_or_underscore(self._peek_char())):
             self._advance()
@@ -88,7 +88,7 @@ class Lexer:
         
         match(self._char):
             case TokenTypes.FORWARD_SLASH.value:
-                following_char = self._peek_char()
+                following_char: str = self._peek_char()
                 match(following_char):
                     case TokenTypes.FORWARD_SLASH.value:
                         self._advance()
@@ -96,7 +96,7 @@ class Lexer:
                 return Token(TokenTypes.FORWARD_SLASH, TokenTypes.FORWARD_SLASH.value)
             
             case TokenTypes.L_ANGLE_BRACKET.value:
-                following_char = self._peek_char()
+                following_char: str = self._peek_char()
                 match(following_char):
                     case TokenTypes.HYPHEN.value:
                         self._advance()
@@ -113,7 +113,7 @@ class Lexer:
                 return Token(TokenTypes.L_ANGLE_BRACKET, TokenTypes.L_ANGLE_BRACKET.value)
             
             case TokenTypes.R_ANGLE_BRACKET.value:
-                following_char = self._peek_char()
+                following_char: str = self._peek_char()
                 match(following_char):
                     case TokenTypes.EQUALS_TO.value:
                         self._advance()
@@ -122,7 +122,7 @@ class Lexer:
                 return Token(TokenTypes.R_ANGLE_BRACKET, TokenTypes.R_ANGLE_BRACKET.value)
         
         if (self._is_alpha_or_underscore()):
-            identifier = self._read_identifier()
+            identifier: str = self._read_identifier()
             return Token(TokenTypes.IDENTIFIER, identifier)
         
         return Token(TokenTypes.ILLEGAL, TokenTypes.ILLEGAL.value)

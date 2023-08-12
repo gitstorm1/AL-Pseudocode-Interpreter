@@ -47,9 +47,9 @@ class TokenTypes(Enum):
     COMMA = ','
 
 class Token:
-    def __init__(self, type: TokenTypes, literal: str):
-        self.type = type
-        self.literal = literal
+    def __init__(self, type: TokenTypes, literal: str) -> None:
+        self.type: TokenTypes = type
+        self.literal: str = literal
     
     def __repr__(self) -> str:
         return f'Token({self.type}, {repr(self.literal)})'
