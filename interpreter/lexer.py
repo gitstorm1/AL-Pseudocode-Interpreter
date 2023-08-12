@@ -34,21 +34,21 @@ class Lexer:
         self._next_position = 0
         self._char = ''
     
-    def _get_char_at(self, position: int):
+    def _read_char(self, position: int):
         return self._input[position]
     
-    def _next_char(self):
+    def _advance(self):
         if (self._next_position == len(self._input)):
             self._char = TokenTypes.EOF.value
             return
         self._position = self._next_position
         self._next_position += 1
-        self._char = self._get_char_at(self._position)
+        self._char = self._read_char(self._position)
     
     def _peek_char(self):
         if (self._next_position == len(self._input)):
             return TokenTypes.EOF.value
-        return self._get_char_at(self._next_position)
+        return self._read_char(self._next_position)
     
     def _is_whitespace(self):
         match(self._char):
@@ -62,16 +62,24 @@ class Lexer:
     
     def _skip_whitespace(self):
         while (self._is_whitespace()):
-            self._next_char()
+            self._advance()
     
-    def _is_letter_or_underscore(self):
-        return (('a' <= self._char <= 'z') or ('A' <= self._char <= 'Z') or (self._char == '_'))
+    def _is_alpha_or_underscore(self):
+        return ((self._char == '_') or (self._char.isalpha()))
+    
+    def _is_alphanumeric_or_underscore(self, char: str):
+        return ((char == '_') or (char.isalnum()))
 
     def _read_identifier(self):
-        pass
+        start_pos = self._position
+        end_pos: int
+        while (self._is_alphanumeric_or_underscore(self._peek_char())):
+            self._advance()
+            end_pos = self._position
+        return self._input[(start_pos):(end_pos + 1)]
     
     def get_next_token(self) -> Token:
-        self._next_char()
+        self._advance()
         self._skip_whitespace()
         
         simple_token_type: TokenTypes = self.SIMPLE_TOKEN_TYPES.get(self._char)
@@ -83,7 +91,7 @@ class Lexer:
                 following_char = self._peek_char()
                 match(following_char):
                     case TokenTypes.FORWARD_SLASH.value:
-                        self._next_char()
+                        self._advance()
                         return Token(TokenTypes.SINGLE_LINE_COMMENT, TokenTypes.SINGLE_LINE_COMMENT.value)
                 return Token(TokenTypes.FORWARD_SLASH, TokenTypes.FORWARD_SLASH.value)
             
@@ -91,15 +99,15 @@ class Lexer:
                 following_char = self._peek_char()
                 match(following_char):
                     case TokenTypes.HYPHEN.value:
-                        self._next_char()
+                        self._advance()
                         return Token(TokenTypes.ASSIGNMENT, TokenTypes.ASSIGNMENT.value)
                     
                     case TokenTypes.R_ANGLE_BRACKET.value:
-                        self._next_char()
+                        self._advance()
                         return Token(TokenTypes.NOT_EQUALS_TO, TokenTypes.NOT_EQUALS_TO.value)
                     
                     case TokenTypes.EQUALS_TO.value:
-                        self._next_char()
+                        self._advance()
                         return Token(TokenTypes.LESSER_OR_EQUALS_TO, TokenTypes.LESSER_OR_EQUALS_TO.value)
                     
                 return Token(TokenTypes.L_ANGLE_BRACKET, TokenTypes.L_ANGLE_BRACKET.value)
@@ -108,9 +116,13 @@ class Lexer:
                 following_char = self._peek_char()
                 match(following_char):
                     case TokenTypes.EQUALS_TO.value:
-                        self._next_char()
+                        self._advance()
                         return Token(TokenTypes.GREATER_OR_EQUALS_TO, TokenTypes.GREATER_OR_EQUALS_TO.value)
                     
                 return Token(TokenTypes.R_ANGLE_BRACKET, TokenTypes.R_ANGLE_BRACKET.value)
+        
+        if (self._is_alpha_or_underscore()):
+            identifier = self._read_identifier()
+            return Token(TokenTypes.IDENTIFIER, identifier)
         
         return Token(TokenTypes.ILLEGAL, TokenTypes.ILLEGAL.value)
