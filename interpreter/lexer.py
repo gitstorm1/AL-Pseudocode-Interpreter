@@ -95,12 +95,10 @@ class Lexer:
             self._advance()
             end_pos = self._position
         
-        if (contains_period):
-            if (self._read_char(end_pos) == '.'):
-                raise Exception("A number cannot have the decimal point located at the end.")
-            return float(self._input[(start_pos):(end_pos + 1)])
+        if (self._read_char(end_pos) == '.'):
+            raise Exception("A number cannot have the decimal point located at the end.")
         
-        return int(self._input[(start_pos):(end_pos + 1)])
+        return (float if contains_period else int)(self._input[(start_pos):(end_pos + 1)])
     
     def get_next_token(self) -> Token:
         self._advance()
