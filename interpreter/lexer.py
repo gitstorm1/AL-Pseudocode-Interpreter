@@ -72,11 +72,35 @@ class Lexer:
 
     def _read_identifier(self) -> str:
         start_pos: int = self._position
-        end_pos: int
+        end_pos: int = start_pos
         while (self._is_alphanumeric_or_underscore(self._peek_char())):
             self._advance()
             end_pos = self._position
         return self._input[(start_pos):(end_pos + 1)]
+    
+    def _is_digit_or_period(self, char: str):
+        return ((char == '.') or (char.isdigit()))
+    
+    def _read_number(self) -> (int | float):
+        start_pos: int = self._position
+        end_pos: int = start_pos
+        
+        contains_period: bool = False
+        
+        while (self._is_digit_or_period(self._peek_char())):
+            if (self._char == '.'):
+                if (contains_period):
+                    raise Exception("A number cannot have more than one decimal point.")
+                contains_period = True
+            self._advance()
+            end_pos = self._position
+        
+        if (contains_period):
+            if (self._read_char(end_pos) == '.'):
+                raise Exception("A number cannot have the decimal point located at the end.")
+            return float(self._input[(start_pos):(end_pos + 1)])
+        
+        return int(self._input[(start_pos):(end_pos + 1)])
     
     def get_next_token(self) -> Token:
         self._advance()
@@ -123,6 +147,19 @@ class Lexer:
         
         if (self._is_alpha_or_underscore()):
             identifier: str = self._read_identifier()
+            
+            keyword_token_type: TokenTypes = self.KEYWORD_TOKEN_TYPES.get(identifier)
+            if (keyword_token_type):
+                return Token(keyword_token_type, identifier)
+            
             return Token(TokenTypes.IDENTIFIER, identifier)
+        
+        if (self._is_digit_or_period(self._char)):
+            number: (int | float) = self._read_number()
+            
+            if (type(number) == int):
+                return Token(TokenTypes.INTEGER, str(number))
+            
+            return Token(TokenTypes.REAL, str(number))
         
         return Token(TokenTypes.ILLEGAL, TokenTypes.ILLEGAL.value)

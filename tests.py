@@ -3,7 +3,7 @@ from interpreter.lexer import Lexer
 input = """
 
 \r\t
-+- */ ^ <-: // =<> &< <= > >=()[]"' ,MOD-1_DIV- - test
++- */ ^ <-: // =<> &< <= > >=()[]"' ,MOD-.123DIV a- - test
 
 """
 lexer = Lexer(input)
