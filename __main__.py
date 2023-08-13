@@ -1,3 +1,3 @@
-from interpreter import repl
+from interpreter.repl import Repl
 
-repl.start()
+Repl()
