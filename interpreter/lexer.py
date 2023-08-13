@@ -8,9 +8,9 @@ class Lexer:
         TokenTypes.EOF.value: TokenTypes.EOF,
         TokenTypes.EOL.value: TokenTypes.EOL,
         TokenTypes.PLUS.value: TokenTypes.PLUS,
-        TokenTypes.HYPHEN.value: TokenTypes.HYPHEN,
         TokenTypes.ASTERISK.value: TokenTypes.ASTERISK,
         TokenTypes.CARET.value: TokenTypes.CARET,
+        TokenTypes.PERIOD.value: TokenTypes.PERIOD,
         TokenTypes.COLON.value: TokenTypes.COLON,
         TokenTypes.EQUALS_TO.value: TokenTypes.EQUALS_TO,
         TokenTypes.AMPERSAND.value: TokenTypes.AMPERSAND,
@@ -151,29 +151,28 @@ class Lexer:
         while (self._is_alphanumeric_or_underscore(self._peek_char())):
             self._advance()
             end_pos = self._position
-        return self._input[(start_pos):(end_pos + 1)]
+        return self._input[start_pos : (end_pos + 1)]
     
-    def _is_digit_or_period(self, char: str) -> bool:
-        return ((char == TokenTypes.PERIOD.value) or (char.isdigit()))
-    
-    def _read_number(self) -> (int | float):
+    def _read_number(self) -> tuple[str, TokenTypes]:
         start_pos: int = self._position
         end_pos: int = start_pos
         
-        contains_period: bool = False
+        number_type: TokenTypes = TokenTypes.INTEGER
         
-        while (self._is_digit_or_period(self._peek_char())):
-            if (self._char == TokenTypes.PERIOD.value):
-                if (contains_period):
-                    raise Exception(f"A number cannot have more than one decimal point. line {self._line} column {self._column}")
-                contains_period = True
+        while True:
+            following_char: str = self._peek_char()
+            if (not following_char.isdigit()):
+                if (following_char == TokenTypes.PERIOD.value):
+                    if (number_type != TokenTypes.REAL):
+                        number_type = TokenTypes.REAL
+                    else:
+                        raise Exception(f"A number cannot have more than one decimal point.\n[Line = {self._line}, Column = {self._column}]")
+                else:
+                    break
             self._advance()
             end_pos = self._position
         
-        if (self._read_char(end_pos) == '.'):
-            raise Exception(f"A number cannot have the decimal point located at the end. line {self._line} column {self._column}")
-        
-        return (float if contains_period else int)(self._input[(start_pos):(end_pos + 1)])
+        return (self._input[start_pos : (end_pos + 1)], number_type)
     
     def get_next_token(self) -> Token:
         self._advance()
@@ -224,10 +223,10 @@ class Lexer:
                     
                 return Token(TokenTypes.R_ANGLE_BRACKET, TokenTypes.R_ANGLE_BRACKET.value, line, column)
             
-            case TokenTypes.PERIOD.value:
+            case TokenTypes.HYPHEN.value:
                 following_char: str = self._peek_char()
                 if (not following_char.isdigit()):
-                    return Token(TokenTypes.PERIOD, TokenTypes.PERIOD.value, line, column)
+                    return Token(TokenTypes.HYPHEN, TokenTypes.HYPHEN.value, line, column)
         
         if (self._is_alpha_or_underscore()):
             identifier: str = self._read_identifier()
@@ -238,12 +237,9 @@ class Lexer:
             
             return Token(TokenTypes.IDENTIFIER, identifier, line, column)
         
-        if (self._is_digit_or_period(self._char)):
-            number: (int | float) = self._read_number()
+        if ((self._char.isdigit()) or (self._char == TokenTypes.HYPHEN.value)):
+            number, number_type = self._read_number()
             
-            if (type(number) == int):
-                return Token(TokenTypes.INTEGER, str(number), line, column)
-            
-            return Token(TokenTypes.REAL, str(number), line, column)
+            return Token(number_type, number, line, column)
         
         return Token(TokenTypes.ILLEGAL, TokenTypes.ILLEGAL.value, line, column)
