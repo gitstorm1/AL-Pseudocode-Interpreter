@@ -121,6 +121,10 @@ class Lexer:
         while (self._is_whitespace()):
             self._advance()
     
+    def _skip_comment(self) -> None:
+        while (TokenTypes.EOL.value != self._peek_char() != TokenTypes.EOF.value):
+            self._advance()
+    
     def _is_alpha_or_underscore(self) -> bool:
         return ((self._char == '_') or (self._char.isalpha()))
     
@@ -176,8 +180,8 @@ class Lexer:
                 following_char: str = self._peek_char()
                 match(following_char):
                     case TokenTypes.FORWARD_SLASH.value:
-                        self._advance()
-                        return Token(TokenTypes.SINGLE_LINE_COMMENT, TokenTypes.SINGLE_LINE_COMMENT.value, line, column)
+                        self._skip_comment()
+                        return self.get_next_token()
                 return Token(TokenTypes.FORWARD_SLASH, TokenTypes.FORWARD_SLASH.value, line, column)
             
             case TokenTypes.L_ANGLE_BRACKET.value:

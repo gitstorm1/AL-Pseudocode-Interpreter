@@ -2,8 +2,8 @@ from interpreter.lexer import Lexer
 
 input = """line1column1 line1column14
 line2column1 line2column14 12355-. BYREF FUNCTION ENDFUNCTION PROCEDURE lolbruh
-
-line4column1 .12 .1 5 65"""
+// test
+line4column1 .12 .1 5 65 // lol"""
 
 lexer = Lexer(input)
 

@@ -91,9 +91,6 @@ class TokenTypes(Enum):
     ASSIGNMENT = '<-'
     COLON = ':'
     
-    ##### Comments
-    SINGLE_LINE_COMMENT = '//'
-    
     ##### Comparison
     EQUALS_TO = '='
     NOT_EQUALS_TO = '<>'
