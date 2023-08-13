@@ -3,7 +3,8 @@ from interpreter.lexer import Lexer
 input = """line1column1 line1column14
 line2column1 line2column14 12355-. BYREF FUNCTION ENDFUNCTION PROCEDURE lolbruh
 // test
-line4column1 .12 .1 5 65 // lol"""
+line4column1 .12 .1 5 65 // lol
+OPENFILE READFILE WRITEFILE READ WRITE APPEND FOR TO CLASS ENDCLASS INHERITS PUBLIC PRIVATE NEW"""
 
 lexer = Lexer(input)
 

@@ -77,6 +77,22 @@ class TokenTypes(Enum):
     OTHERWISE = 'OTHERWISE'
     ENDCASE = 'ENDCASE'
     
+    # File operations
+    OPENFILE = 'OPENFILE'
+    READFILE = 'READFILE'
+    WRITEFILE = 'WRITEFILE'
+    READ = 'READ'
+    WRITE = 'WRITE'
+    APPEND = 'APPEND'
+    
+    # OOP
+    PUBLIC = 'PUBLIC'
+    PRIVATE = 'PRIVATE'
+    CLASS = 'CLASS'
+    ENDCLASS = 'ENDCLASS'
+    INHERITS = 'INHERITS'
+    NEW = 'NEW'
+    
     ##### Operators
     MODULUS = 'MOD'
     INT_DIV = 'DIV'

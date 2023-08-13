@@ -80,6 +80,20 @@ class Lexer:
         
         TokenTypes.MODULUS.value: TokenTypes.MODULUS,
         TokenTypes.INT_DIV.value: TokenTypes.INT_DIV,
+        
+        TokenTypes.OPENFILE.value: TokenTypes.OPENFILE,
+        TokenTypes.READFILE.value: TokenTypes.READFILE,
+        TokenTypes.WRITEFILE.value: TokenTypes.WRITEFILE,
+        TokenTypes.READ.value: TokenTypes.READ,
+        TokenTypes.WRITE.value: TokenTypes.WRITE,
+        TokenTypes.APPEND.value: TokenTypes.APPEND,
+        
+        TokenTypes.PUBLIC.value: TokenTypes.PUBLIC,
+        TokenTypes.PRIVATE.value: TokenTypes.PRIVATE,
+        TokenTypes.CLASS.value: TokenTypes.CLASS,
+        TokenTypes.ENDCLASS.value: TokenTypes.ENDCLASS,
+        TokenTypes.INHERITS.value: TokenTypes.INHERITS,
+        TokenTypes.NEW.value: TokenTypes.NEW,
     }
     
     def __init__(self, input: str) -> None:
