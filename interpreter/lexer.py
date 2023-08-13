@@ -1,4 +1,4 @@
-from interpreter.token import Token, TokenTypes
+from .token import Token, TokenTypes
 
 class Lexer:
     SIMPLE_TOKEN_TYPES: dict[str, TokenTypes] = {
