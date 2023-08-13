@@ -8,9 +8,9 @@ class Lexer:
         TokenTypes.EOF.value: TokenTypes.EOF,
         TokenTypes.EOL.value: TokenTypes.EOL,
         TokenTypes.PLUS.value: TokenTypes.PLUS,
+        TokenTypes.HYPHEN.value: TokenTypes.HYPHEN,
         TokenTypes.ASTERISK.value: TokenTypes.ASTERISK,
         TokenTypes.CARET.value: TokenTypes.CARET,
-        TokenTypes.PERIOD.value: TokenTypes.PERIOD,
         TokenTypes.COLON.value: TokenTypes.COLON,
         TokenTypes.EQUALS_TO.value: TokenTypes.EQUALS_TO,
         TokenTypes.AMPERSAND.value: TokenTypes.AMPERSAND,
@@ -139,11 +139,8 @@ class Lexer:
         while (TokenTypes.EOL.value != self._peek_char() != TokenTypes.EOF.value):
             self._advance()
     
-    def _is_alpha_or_underscore(self) -> bool:
-        return ((self._char == '_') or (self._char.isalpha()))
-    
     def _is_alphanumeric_or_underscore(self, char: str) -> bool:
-        return ((char == '_') or (char.isalnum()))
+        return ((char.isalnum()) or (char == '_'))
 
     def _read_identifier(self) -> str:
         start_pos: int = self._position
@@ -157,14 +154,14 @@ class Lexer:
         start_pos: int = self._position
         end_pos: int = start_pos
         
-        number_type: TokenTypes = TokenTypes.INTEGER
+        number_token_type: TokenTypes = TokenTypes.REAL if (self._read_char(start_pos) == TokenTypes.PERIOD.value) else TokenTypes.INTEGER
         
         while True:
             following_char: str = self._peek_char()
             if (not following_char.isdigit()):
                 if (following_char == TokenTypes.PERIOD.value):
-                    if (number_type != TokenTypes.REAL):
-                        number_type = TokenTypes.REAL
+                    if (number_token_type != TokenTypes.REAL):
+                        number_token_type = TokenTypes.REAL
                     else:
                         raise Exception(f"A number cannot have more than one decimal point.\n[Line = {self._line}, Column = {self._column}]")
                 else:
@@ -172,7 +169,7 @@ class Lexer:
             self._advance()
             end_pos = self._position
         
-        return (self._input[start_pos : (end_pos + 1)], number_type)
+        return (self._input[start_pos : (end_pos + 1)], number_token_type)
     
     def get_next_token(self) -> Token:
         self._advance()
@@ -222,24 +219,22 @@ class Lexer:
                         return Token(TokenTypes.GREATER_OR_EQUALS_TO, TokenTypes.GREATER_OR_EQUALS_TO.value, line, column)
                     
                 return Token(TokenTypes.R_ANGLE_BRACKET, TokenTypes.R_ANGLE_BRACKET.value, line, column)
-            
-            case TokenTypes.HYPHEN.value:
+
+            case TokenTypes.PERIOD.value:
                 following_char: str = self._peek_char()
                 if (not following_char.isdigit()):
-                    return Token(TokenTypes.HYPHEN, TokenTypes.HYPHEN.value, line, column)
+                    return Token(TokenTypes.PERIOD, TokenTypes.PERIOD.value, line, column)
         
-        if (self._is_alpha_or_underscore()):
+        if ((self._char.isalpha()) or (self._char == '_')):
             identifier: str = self._read_identifier()
             
-            keyword_token_type: TokenTypes = self.KEYWORD_TOKEN_TYPES.get(identifier)
-            if (keyword_token_type):
-                return Token(keyword_token_type, identifier, line, column)
+            token_type: TokenTypes = (self.KEYWORD_TOKEN_TYPES.get(identifier) or TokenTypes.IDENTIFIER)
             
-            return Token(TokenTypes.IDENTIFIER, identifier, line, column)
+            return Token(token_type, identifier, line, column)
         
-        if ((self._char.isdigit()) or (self._char == TokenTypes.HYPHEN.value)):
-            number, number_type = self._read_number()
+        if ((self._char.isdigit()) or (self._char == TokenTypes.PERIOD.value)):
+            number, number_token_type = self._read_number()
             
-            return Token(number_type, number, line, column)
+            return Token(number_token_type, number, line, column)
         
         return Token(TokenTypes.ILLEGAL, TokenTypes.ILLEGAL.value, line, column)
