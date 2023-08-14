@@ -183,7 +183,7 @@ class Lexer:
             self._advance()
             end_pos = self._position
             
-            if (self._char == TokenType.DOUBLE_QUOTE.value):
+            if ((self._char == TokenType.DOUBLE_QUOTE.value) and (self._input[self._position - 1] != '\\')):
                 break
         else:
             raise Exception(f"Double quotes must be in pairs and strings cannot stretch across multiple lines.\n[Line = {self._line}, Column = {self._column}]")
