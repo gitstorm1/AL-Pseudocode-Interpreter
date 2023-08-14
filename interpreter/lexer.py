@@ -1,3 +1,4 @@
+# Local imports
 from .token import Token, TokenTypes
 
 class Lexer:
