@@ -18,15 +18,19 @@ class ShellState(enum.Enum):
     MULTI_LINE_INPUT = '... '
 
 class Repl(cmd.Cmd):
-    intro = "Welcome to the A-Level Pseudocode shell. Type 'help' or '?' for a list of commands."
-    prompt = ShellState.NORMAL.value
+    intro: str = "Welcome to the A-Level Pseudocode shell. Type 'help' or '?' for a list of commands."
+    prompt: str = ShellState.NORMAL.value
     
-    state = ShellState.NORMAL
-    stored_input = ""
+    state: ShellState = ShellState.NORMAL
+    stored_input: str = ""
     
     def do_exit(self, arg: str):
-        "This command exits out of the shell."
+        "Exits out of the shell."
         exit()
+    
+    def do_exec(self, arg: str):
+        "Executes the script located at the path specified."
+        print("--Not yet implemented--")
     
     def emptyline(self):
         return self.default('')
