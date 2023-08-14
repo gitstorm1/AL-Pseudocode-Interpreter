@@ -18,7 +18,8 @@ class ShellState(enum.Enum):
     MULTI_LINE_INPUT = '... '
 
 class Repl(cmd.Cmd):
-    intro: str = "Welcome to the A-Level Pseudocode shell. Type 'help' or '?' for a list of commands."
+    intro: str = """Welcome to the A-Level Pseudocode shell. Type 'help' or '?' for a list of commands.
+For a multi-line input, add a backslash ('\\') at the end of each line input."""
     prompt: str = ShellState.NORMAL.value
     
     state: ShellState = ShellState.NORMAL
