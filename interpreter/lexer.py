@@ -19,8 +19,6 @@ class Lexer:
         TokenType.R_PARENTHESES.value: TokenType.R_PARENTHESES,
         TokenType.L_SQ_BRACKET.value: TokenType.L_SQ_BRACKET,
         TokenType.R_SQ_BRACKET.value: TokenType.R_SQ_BRACKET,
-        TokenType.DOUBLE_QUOTE.value: TokenType.DOUBLE_QUOTE,
-        TokenType.SINGLE_QUOTE.value: TokenType.SINGLE_QUOTE,
         TokenType.COMMA.value: TokenType.COMMA,
     }
     
@@ -221,6 +219,12 @@ class Lexer:
                     
                 return Token(TokenType.R_ANGLE_BRACKET, TokenType.R_ANGLE_BRACKET.value, line, column)
 
+            case TokenType.SINGLE_QUOTE.value:
+                return Token(TokenType.SINGLE_QUOTE, TokenType.SINGLE_QUOTE.value, line, column)
+            
+            case TokenType.DOUBLE_QUOTE.value:
+                return Token(TokenType.DOUBLE_QUOTE, TokenType.DOUBLE_QUOTE.value, line, column)
+            
             case TokenType.PERIOD.value:
                 following_char: str = self._peek_char()
                 if (not following_char.isdigit()):
@@ -236,6 +240,9 @@ class Lexer:
         if ((self._char.isdigit()) or (self._char == TokenType.PERIOD.value)):
             number, number_token_type = self._read_number()
             
-            return Token(number_token_type, number, line, column)
+            token = Token(number_token_type, number, line, column)
+            token.is_literal = True
+            
+            return token
         
         return Token(TokenType.ILLEGAL, self._char, line, column)
