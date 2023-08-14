@@ -99,11 +99,10 @@ class Lexer:
         self._input: str = input
         
         self._position: int = -1
+        self._char: str = ''
         
         self._line: int = 1
         self._column: int = (self._position + 1)
-        
-        self._char: str = ''
     
     def _advance(self, distance: int = 1) -> None:
         self._position += distance
