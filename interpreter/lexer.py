@@ -99,7 +99,7 @@ class Lexer:
         self._input: str = input
         
         self._position: int = -1
-        self._char: str = ''
+        self._char: str = TokenType.EOF.value
         
         self._line: int = 1
         self._column: int = (self._position + 1)
