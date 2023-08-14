@@ -7,11 +7,14 @@ from .lexer import Lexer, Token, TokenType
 def output_tokens(input: str) -> None:
     lexer = Lexer(input)
     
-    token: Token = lexer.get_next_token()
-    while (token.type != TokenType.EOF):
+    try:
+        token: Token = lexer.get_next_token()
+        while (token.type != TokenType.EOF):
+            print(token)
+            token = lexer.get_next_token()
         print(token)
-        token = lexer.get_next_token()
-    print(token)
+    except Exception as error:
+        print("ERROR:", error)
 
 class ShellState(enum.Enum):
     NORMAL = '>>> '
