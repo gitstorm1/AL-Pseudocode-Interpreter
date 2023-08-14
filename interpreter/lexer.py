@@ -1,100 +1,100 @@
 # Local imports
-from .token import Token, TokenTypes
+from .token import Token, TokenType
 
 class Lexer:
-    SIMPLE_TOKEN_TYPES: dict[str, TokenTypes] = {
+    SIMPLE_TOKEN_TYPES: dict[str, TokenType] = {
         # This dictionary contains token types that:
         # 1) Consist of a single character only.
         # 2) And this character does not appear as the first character in any multi-character token type.
-        TokenTypes.EOF.value: TokenTypes.EOF,
-        TokenTypes.EOL.value: TokenTypes.EOL,
-        TokenTypes.PLUS.value: TokenTypes.PLUS,
-        TokenTypes.HYPHEN.value: TokenTypes.HYPHEN,
-        TokenTypes.ASTERISK.value: TokenTypes.ASTERISK,
-        TokenTypes.CARET.value: TokenTypes.CARET,
-        TokenTypes.COLON.value: TokenTypes.COLON,
-        TokenTypes.EQUALS_TO.value: TokenTypes.EQUALS_TO,
-        TokenTypes.AMPERSAND.value: TokenTypes.AMPERSAND,
-        TokenTypes.L_PARENTHESES.value: TokenTypes.L_PARENTHESES,
-        TokenTypes.R_PARENTHESES.value: TokenTypes.R_PARENTHESES,
-        TokenTypes.L_SQ_BRACKET.value: TokenTypes.L_SQ_BRACKET,
-        TokenTypes.R_SQ_BRACKET.value: TokenTypes.R_SQ_BRACKET,
-        TokenTypes.DOUBLE_QUOTE.value: TokenTypes.DOUBLE_QUOTE,
-        TokenTypes.SINGLE_QUOTE.value: TokenTypes.SINGLE_QUOTE,
-        TokenTypes.COMMA.value: TokenTypes.COMMA,
+        TokenType.EOF.value: TokenType.EOF,
+        TokenType.EOL.value: TokenType.EOL,
+        TokenType.PLUS.value: TokenType.PLUS,
+        TokenType.HYPHEN.value: TokenType.HYPHEN,
+        TokenType.ASTERISK.value: TokenType.ASTERISK,
+        TokenType.CARET.value: TokenType.CARET,
+        TokenType.COLON.value: TokenType.COLON,
+        TokenType.EQUALS_TO.value: TokenType.EQUALS_TO,
+        TokenType.AMPERSAND.value: TokenType.AMPERSAND,
+        TokenType.L_PARENTHESES.value: TokenType.L_PARENTHESES,
+        TokenType.R_PARENTHESES.value: TokenType.R_PARENTHESES,
+        TokenType.L_SQ_BRACKET.value: TokenType.L_SQ_BRACKET,
+        TokenType.R_SQ_BRACKET.value: TokenType.R_SQ_BRACKET,
+        TokenType.DOUBLE_QUOTE.value: TokenType.DOUBLE_QUOTE,
+        TokenType.SINGLE_QUOTE.value: TokenType.SINGLE_QUOTE,
+        TokenType.COMMA.value: TokenType.COMMA,
     }
     
-    KEYWORD_TOKEN_TYPES: dict[str, TokenTypes] = {
-        TokenTypes.INTEGER.value: TokenTypes.INTEGER,
-        TokenTypes.REAL.value: TokenTypes.REAL,
-        TokenTypes.CHAR.value: TokenTypes.CHAR,
-        TokenTypes.STRING.value: TokenTypes.STRING,
-        TokenTypes.BOOLEAN.value: TokenTypes.BOOLEAN,
-        TokenTypes.DATE.value: TokenTypes.DATE,
+    KEYWORD_TOKEN_TYPES: dict[str, TokenType] = {
+        TokenType.INTEGER.value: TokenType.INTEGER,
+        TokenType.REAL.value: TokenType.REAL,
+        TokenType.CHAR.value: TokenType.CHAR,
+        TokenType.STRING.value: TokenType.STRING,
+        TokenType.BOOLEAN.value: TokenType.BOOLEAN,
+        TokenType.DATE.value: TokenType.DATE,
         
-        TokenTypes.WHILE.value: TokenTypes.WHILE,
-        TokenTypes.ENDWHILE.value: TokenTypes.ENDWHILE,
+        TokenType.WHILE.value: TokenType.WHILE,
+        TokenType.ENDWHILE.value: TokenType.ENDWHILE,
         
-        TokenTypes.REPEAT.value: TokenTypes.REPEAT,
-        TokenTypes.UNTIL.value: TokenTypes.UNTIL,
+        TokenType.REPEAT.value: TokenType.REPEAT,
+        TokenType.UNTIL.value: TokenType.UNTIL,
         
-        TokenTypes.FOR.value: TokenTypes.FOR,
-        TokenTypes.TO.value: TokenTypes.TO,
-        TokenTypes.STEP.value: TokenTypes.STEP,
-        TokenTypes.NEXT.value: TokenTypes.NEXT,
+        TokenType.FOR.value: TokenType.FOR,
+        TokenType.TO.value: TokenType.TO,
+        TokenType.STEP.value: TokenType.STEP,
+        TokenType.NEXT.value: TokenType.NEXT,
         
-        TokenTypes.DECLARE.value: TokenTypes.DECLARE,
-        TokenTypes.CONSTANT.value: TokenTypes.CONSTANT,
+        TokenType.DECLARE.value: TokenType.DECLARE,
+        TokenType.CONSTANT.value: TokenType.CONSTANT,
         
-        TokenTypes.ARRAY.value: TokenTypes.ARRAY,
-        TokenTypes.OF.value: TokenTypes.OF,
+        TokenType.ARRAY.value: TokenType.ARRAY,
+        TokenType.OF.value: TokenType.OF,
         
-        TokenTypes.TYPE.value: TokenTypes.TYPE,
-        TokenTypes.ENDTYPE.value: TokenTypes.ENDTYPE,
+        TokenType.TYPE.value: TokenType.TYPE,
+        TokenType.ENDTYPE.value: TokenType.ENDTYPE,
         
-        TokenTypes.INPUT.value: TokenTypes.INPUT,
-        TokenTypes.OUTPUT.value: TokenTypes.OUTPUT,
+        TokenType.INPUT.value: TokenType.INPUT,
+        TokenType.OUTPUT.value: TokenType.OUTPUT,
         
-        TokenTypes.AND.value: TokenTypes.AND,
-        TokenTypes.OR.value: TokenTypes.OR,
-        TokenTypes.NOT.value: TokenTypes.NOT,
+        TokenType.AND.value: TokenType.AND,
+        TokenType.OR.value: TokenType.OR,
+        TokenType.NOT.value: TokenType.NOT,
         
-        TokenTypes.PROCEDURE.value: TokenTypes.PROCEDURE,
-        TokenTypes.ENDPROCEDURE.value: TokenTypes.ENDPROCEDURE,
-        TokenTypes.CALL.value: TokenTypes.CALL,
+        TokenType.PROCEDURE.value: TokenType.PROCEDURE,
+        TokenType.ENDPROCEDURE.value: TokenType.ENDPROCEDURE,
+        TokenType.CALL.value: TokenType.CALL,
         
-        TokenTypes.BYREF.value: TokenTypes.BYREF,
+        TokenType.BYREF.value: TokenType.BYREF,
         
-        TokenTypes.FUNCTION.value: TokenTypes.FUNCTION,
-        TokenTypes.RETURNS.value: TokenTypes.RETURNS,
-        TokenTypes.RETURN.value: TokenTypes.RETURN,
-        TokenTypes.ENDFUNCTION.value: TokenTypes.ENDFUNCTION,
+        TokenType.FUNCTION.value: TokenType.FUNCTION,
+        TokenType.RETURNS.value: TokenType.RETURNS,
+        TokenType.RETURN.value: TokenType.RETURN,
+        TokenType.ENDFUNCTION.value: TokenType.ENDFUNCTION,
         
-        TokenTypes.IF.value: TokenTypes.IF,
-        TokenTypes.THEN.value: TokenTypes.THEN,
-        TokenTypes.ELSEIF.value: TokenTypes.ELSEIF,
-        TokenTypes.ENDIF.value: TokenTypes.ENDIF,
+        TokenType.IF.value: TokenType.IF,
+        TokenType.THEN.value: TokenType.THEN,
+        TokenType.ELSEIF.value: TokenType.ELSEIF,
+        TokenType.ENDIF.value: TokenType.ENDIF,
         
-        TokenTypes.CASE.value: TokenTypes.CASE,
-        TokenTypes.OTHERWISE.value: TokenTypes.OTHERWISE,
-        TokenTypes.ENDCASE.value: TokenTypes.ENDCASE,
+        TokenType.CASE.value: TokenType.CASE,
+        TokenType.OTHERWISE.value: TokenType.OTHERWISE,
+        TokenType.ENDCASE.value: TokenType.ENDCASE,
         
-        TokenTypes.MODULUS.value: TokenTypes.MODULUS,
-        TokenTypes.INT_DIV.value: TokenTypes.INT_DIV,
+        TokenType.MODULUS.value: TokenType.MODULUS,
+        TokenType.INT_DIV.value: TokenType.INT_DIV,
         
-        TokenTypes.OPENFILE.value: TokenTypes.OPENFILE,
-        TokenTypes.READFILE.value: TokenTypes.READFILE,
-        TokenTypes.WRITEFILE.value: TokenTypes.WRITEFILE,
-        TokenTypes.READ.value: TokenTypes.READ,
-        TokenTypes.WRITE.value: TokenTypes.WRITE,
-        TokenTypes.APPEND.value: TokenTypes.APPEND,
+        TokenType.OPENFILE.value: TokenType.OPENFILE,
+        TokenType.READFILE.value: TokenType.READFILE,
+        TokenType.WRITEFILE.value: TokenType.WRITEFILE,
+        TokenType.READ.value: TokenType.READ,
+        TokenType.WRITE.value: TokenType.WRITE,
+        TokenType.APPEND.value: TokenType.APPEND,
         
-        TokenTypes.PUBLIC.value: TokenTypes.PUBLIC,
-        TokenTypes.PRIVATE.value: TokenTypes.PRIVATE,
-        TokenTypes.CLASS.value: TokenTypes.CLASS,
-        TokenTypes.ENDCLASS.value: TokenTypes.ENDCLASS,
-        TokenTypes.INHERITS.value: TokenTypes.INHERITS,
-        TokenTypes.NEW.value: TokenTypes.NEW,
+        TokenType.PUBLIC.value: TokenType.PUBLIC,
+        TokenType.PRIVATE.value: TokenType.PRIVATE,
+        TokenType.CLASS.value: TokenType.CLASS,
+        TokenType.ENDCLASS.value: TokenType.ENDCLASS,
+        TokenType.INHERITS.value: TokenType.INHERITS,
+        TokenType.NEW.value: TokenType.NEW,
     }
     
     def __init__(self, input: str) -> None:
@@ -115,11 +115,11 @@ class Lexer:
         self._position = self._next_position
         self._next_position += 1
         self._column += 1
-        self._char = TokenTypes.EOF.value if (self._position == len(self._input)) else self._read_char(self._position)
+        self._char = TokenType.EOF.value if (self._position == len(self._input)) else self._read_char(self._position)
     
     def _peek_char(self) -> str:
         if (self._next_position == len(self._input)):
-            return TokenTypes.EOF.value
+            return TokenType.EOF.value
         return self._read_char(self._next_position)
     
     def _is_whitespace(self) -> bool:
@@ -137,7 +137,7 @@ class Lexer:
             self._advance()
     
     def _skip_comment(self) -> None:
-        while (TokenTypes.EOL.value != self._peek_char() != TokenTypes.EOF.value):
+        while (TokenType.EOL.value != self._peek_char() != TokenType.EOF.value):
             self._advance()
     
     def _is_alphanumeric_or_underscore(self, char: str) -> bool:
@@ -151,18 +151,18 @@ class Lexer:
             end_pos = self._position
         return self._input[start_pos : (end_pos + 1)]
     
-    def _read_number(self) -> tuple[str, TokenTypes]:
+    def _read_number(self) -> tuple[str, TokenType]:
         start_pos: int = self._position
         end_pos: int = start_pos
         
-        number_token_type: TokenTypes = TokenTypes.REAL if (self._read_char(start_pos) == TokenTypes.PERIOD.value) else TokenTypes.INTEGER
+        number_token_type: TokenType = TokenType.REAL if (self._read_char(start_pos) == TokenType.PERIOD.value) else TokenType.INTEGER
         
         while True:
             following_char: str = self._peek_char()
             if (not following_char.isdigit()):
-                if (following_char == TokenTypes.PERIOD.value):
-                    if (number_token_type != TokenTypes.REAL):
-                        number_token_type = TokenTypes.REAL
+                if (following_char == TokenType.PERIOD.value):
+                    if (number_token_type != TokenType.REAL):
+                        number_token_type = TokenType.REAL
                     else:
                         raise Exception(f"A number cannot have more than one decimal point.\n[Line = {self._line}, Column = {self._column}]")
                 else:
@@ -179,63 +179,63 @@ class Lexer:
         line: int = self._line
         column: int = self._column
         
-        simple_token_type: TokenTypes = self.SIMPLE_TOKEN_TYPES.get(self._char)
+        simple_token_type: TokenType = self.SIMPLE_TOKEN_TYPES.get(self._char)
         if (simple_token_type):
-            if (simple_token_type == TokenTypes.EOL):
+            if (simple_token_type == TokenType.EOL):
                 self._line += 1
                 self._column = 0
             return Token(simple_token_type, simple_token_type.value, line, column)
         
         match(self._char):
-            case TokenTypes.FORWARD_SLASH.value:
+            case TokenType.FORWARD_SLASH.value:
                 following_char: str = self._peek_char()
                 match(following_char):
-                    case TokenTypes.FORWARD_SLASH.value:
+                    case TokenType.FORWARD_SLASH.value:
                         self._skip_comment()
                         return self.get_next_token()
-                return Token(TokenTypes.FORWARD_SLASH, TokenTypes.FORWARD_SLASH.value, line, column)
+                return Token(TokenType.FORWARD_SLASH, TokenType.FORWARD_SLASH.value, line, column)
             
-            case TokenTypes.L_ANGLE_BRACKET.value:
+            case TokenType.L_ANGLE_BRACKET.value:
                 following_char: str = self._peek_char()
                 match(following_char):
-                    case TokenTypes.HYPHEN.value:
+                    case TokenType.HYPHEN.value:
                         self._advance()
-                        return Token(TokenTypes.ASSIGNMENT, TokenTypes.ASSIGNMENT.value, line, column)
+                        return Token(TokenType.ASSIGNMENT, TokenType.ASSIGNMENT.value, line, column)
                     
-                    case TokenTypes.R_ANGLE_BRACKET.value:
+                    case TokenType.R_ANGLE_BRACKET.value:
                         self._advance()
-                        return Token(TokenTypes.NOT_EQUALS_TO, TokenTypes.NOT_EQUALS_TO.value, line, column)
+                        return Token(TokenType.NOT_EQUALS_TO, TokenType.NOT_EQUALS_TO.value, line, column)
                     
-                    case TokenTypes.EQUALS_TO.value:
+                    case TokenType.EQUALS_TO.value:
                         self._advance()
-                        return Token(TokenTypes.LESSER_OR_EQUALS_TO, TokenTypes.LESSER_OR_EQUALS_TO.value, line, column)
+                        return Token(TokenType.LESSER_OR_EQUALS_TO, TokenType.LESSER_OR_EQUALS_TO.value, line, column)
                     
-                return Token(TokenTypes.L_ANGLE_BRACKET, TokenTypes.L_ANGLE_BRACKET.value, line, column)
+                return Token(TokenType.L_ANGLE_BRACKET, TokenType.L_ANGLE_BRACKET.value, line, column)
             
-            case TokenTypes.R_ANGLE_BRACKET.value:
+            case TokenType.R_ANGLE_BRACKET.value:
                 following_char: str = self._peek_char()
                 match(following_char):
-                    case TokenTypes.EQUALS_TO.value:
+                    case TokenType.EQUALS_TO.value:
                         self._advance()
-                        return Token(TokenTypes.GREATER_OR_EQUALS_TO, TokenTypes.GREATER_OR_EQUALS_TO.value, line, column)
+                        return Token(TokenType.GREATER_OR_EQUALS_TO, TokenType.GREATER_OR_EQUALS_TO.value, line, column)
                     
-                return Token(TokenTypes.R_ANGLE_BRACKET, TokenTypes.R_ANGLE_BRACKET.value, line, column)
+                return Token(TokenType.R_ANGLE_BRACKET, TokenType.R_ANGLE_BRACKET.value, line, column)
 
-            case TokenTypes.PERIOD.value:
+            case TokenType.PERIOD.value:
                 following_char: str = self._peek_char()
                 if (not following_char.isdigit()):
-                    return Token(TokenTypes.PERIOD, TokenTypes.PERIOD.value, line, column)
+                    return Token(TokenType.PERIOD, TokenType.PERIOD.value, line, column)
         
         if ((self._char.isalpha()) or (self._char == '_')):
             identifier: str = self._read_identifier()
             
-            token_type: TokenTypes = (self.KEYWORD_TOKEN_TYPES.get(identifier) or TokenTypes.IDENTIFIER)
+            token_type: TokenType = (self.KEYWORD_TOKEN_TYPES.get(identifier) or TokenType.IDENTIFIER)
             
             return Token(token_type, identifier, line, column)
         
-        if ((self._char.isdigit()) or (self._char == TokenTypes.PERIOD.value)):
+        if ((self._char.isdigit()) or (self._char == TokenType.PERIOD.value)):
             number, number_token_type = self._read_number()
             
             return Token(number_token_type, number, line, column)
         
-        return Token(TokenTypes.ILLEGAL, TokenTypes.ILLEGAL.value, line, column)
+        return Token(TokenType.ILLEGAL, self._char, line, column)

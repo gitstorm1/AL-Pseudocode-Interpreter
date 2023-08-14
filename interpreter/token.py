@@ -1,7 +1,7 @@
 # Standard library imports
-from enum import Enum
+import enum
 
-class TokenTypes(Enum):
+class TokenType(enum.Enum):
     ##### Special tokens
     ILLEGAL = 'ILLEGAL'
     EOF = ''
@@ -132,8 +132,8 @@ class TokenTypes(Enum):
     COMMA = ','
 
 class Token:
-    def __init__(self, type: TokenTypes, literal: str, line: int, column: int) -> None:
-        self.type: TokenTypes = type
+    def __init__(self, type: TokenType, literal: str, line: int, column: int) -> None:
+        self.type: TokenType = type
         self.literal: str = literal
         
         self.line, self.column = line, column
