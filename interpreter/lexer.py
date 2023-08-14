@@ -166,6 +166,31 @@ class Lexer:
         
         return (self._input[start_pos : (end_pos + 1)], number_token_type)
     
+    def _read_char(self) -> str:
+        if (self._peek_char() == TokenType.SINGLE_QUOTE.value):
+            self._advance()
+            return ''
+        elif (self._peek_char(2) == TokenType.SINGLE_QUOTE.value):
+            char: str = self._input[(self._position + 1)]
+            self._advance(2)
+            return char
+        
+        raise Exception(f"Single quotes must be in pairs and can only contain a single character.\n[Line = {self._line}, Column = {self._column}]")
+    
+    def _read_string(self) -> str:
+        start_pos: int = self._position
+        end_pos: int
+        while (TokenType.EOL.value != self._peek_char() != TokenType.EOF.value):
+            self._advance()
+            end_pos = self._position
+            
+            if (self._char == TokenType.DOUBLE_QUOTE.value):
+                break
+        else:
+            raise Exception(f"Double quotes must be in pairs and strings cannot stretch across multiple lines.\n[Line = {self._line}, Column = {self._column}]")
+        
+        return self._input[(start_pos + 1) : end_pos]
+    
     def get_next_token(self) -> Token:
         self._advance()
         self._skip_whitespace()
@@ -216,21 +241,14 @@ class Lexer:
                 return Token(TokenType.R_ANGLE_BRACKET, TokenType.R_ANGLE_BRACKET.value, line, column)
 
             case TokenType.SINGLE_QUOTE.value:
-                if (self._peek_char() == TokenType.SINGLE_QUOTE.value):
-                    token = Token(TokenType.CHAR, '', line, column)
-                    token.is_literal = True
-                    self._advance()
-                    return token
-                elif (self._peek_char(2) == TokenType.SINGLE_QUOTE.value):
-                    token = Token(TokenType.CHAR, self._input[self._position + 1], line, column)
-                    token.is_literal = True
-                    self._advance(2)
-                    return token
-                
-                raise Exception(f"Single quotes can only contain a single character.\n[Line = {self._line}, Column = {self._column}]")
+                token: Token = Token(TokenType.CHAR, self._read_char(), line, column)
+                token.is_literal = True
+                return token
             
             case TokenType.DOUBLE_QUOTE.value:
-                return Token(TokenType.DOUBLE_QUOTE, TokenType.DOUBLE_QUOTE.value, line, column)
+                token: Token = Token(TokenType.STRING, self._read_string(), line, column)
+                token.is_literal = True
+                return token
             
             case TokenType.PERIOD.value:
                 following_char: str = self._peek_char()
@@ -247,7 +265,7 @@ class Lexer:
         if ((self._char.isdigit()) or (self._char == TokenType.PERIOD.value)):
             number, number_token_type = self._read_number()
             
-            token = Token(number_token_type, number, line, column)
+            token: Token = Token(number_token_type, number, line, column)
             token.is_literal = True
             
             return token
