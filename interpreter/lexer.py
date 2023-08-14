@@ -99,26 +99,22 @@ class Lexer:
         self._input: str = input
         
         self._position: int = -1
-        self._next_position: int = 0
         
         self._line: int = 1
         self._column: int = (self._position + 1)
         
         self._char: str = ''
     
-    def _read_char(self, position: int) -> str:
-        return self._input[position]
+    def _advance(self, distance: int = 1) -> None:
+        self._position += distance
+        self._column += distance
+        self._char = TokenType.EOF.value if (self._position == len(self._input)) else self._input[self._position]
     
-    def _advance(self) -> None:
-        self._position = self._next_position
-        self._next_position += 1
-        self._column += 1
-        self._char = TokenType.EOF.value if (self._position == len(self._input)) else self._read_char(self._position)
-    
-    def _peek_char(self) -> str:
-        if (self._next_position == len(self._input)):
+    def _peek_char(self, distance: int = 1) -> str:
+        peek_position: int = (self._position + distance)
+        if (peek_position >= len(self._input)):
             return TokenType.EOF.value
-        return self._read_char(self._next_position)
+        return self._input[peek_position]
     
     def _is_whitespace(self) -> bool:
         match(self._char):
@@ -153,7 +149,7 @@ class Lexer:
         start_pos: int = self._position
         end_pos: int = start_pos
         
-        number_token_type: TokenType = TokenType.REAL if (self._read_char(start_pos) == TokenType.PERIOD.value) else TokenType.INTEGER
+        number_token_type: TokenType = TokenType.REAL if (self._input[start_pos] == TokenType.PERIOD.value) else TokenType.INTEGER
         
         while True:
             following_char: str = self._peek_char()
@@ -220,7 +216,18 @@ class Lexer:
                 return Token(TokenType.R_ANGLE_BRACKET, TokenType.R_ANGLE_BRACKET.value, line, column)
 
             case TokenType.SINGLE_QUOTE.value:
-                return Token(TokenType.SINGLE_QUOTE, TokenType.SINGLE_QUOTE.value, line, column)
+                if (self._peek_char() == TokenType.SINGLE_QUOTE.value):
+                    token = Token(TokenType.CHAR, '', line, column)
+                    token.is_literal = True
+                    self._advance()
+                    return token
+                elif (self._peek_char(2) == TokenType.SINGLE_QUOTE.value):
+                    token = Token(TokenType.CHAR, self._input[self._position + 1], line, column)
+                    token.is_literal = True
+                    self._advance(2)
+                    return token
+                
+                raise Exception(f"Single quotes can only contain a single character.\n[Line = {self._line}, Column = {self._column}]")
             
             case TokenType.DOUBLE_QUOTE.value:
                 return Token(TokenType.DOUBLE_QUOTE, TokenType.DOUBLE_QUOTE.value, line, column)
