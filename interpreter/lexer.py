@@ -108,7 +108,7 @@ class Lexer:
     def _advance(self, distance: int = 1) -> None:
         self._position += distance
         self._column += distance
-        self._char = TokenType.EOF.value if (self._position == len(self._input)) else self._input[self._position]
+        self._char = TokenType.EOF.value if (self._position >= len(self._input)) else self._input[self._position]
     
     def _peek_char(self, distance: int = 1) -> str:
         peek_position: int = (self._position + distance)
