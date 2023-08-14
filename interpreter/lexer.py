@@ -165,30 +165,19 @@ class Lexer:
         
         return (self._input[start_pos : (end_pos + 1)], number_token_type)
     
-    def _read_char(self) -> str:
-        if (self._peek_char() == TokenType.SINGLE_QUOTE.value):
-            self._advance()
-            return ''
-        elif (self._peek_char(2) == TokenType.SINGLE_QUOTE.value):
-            char: str = self._input[(self._position + 1)]
-            self._advance(2)
-            return char
-        
-        raise Exception(f"Single quotes must be in pairs and can only contain a single character.\n[Line = {self._line}, Column = {self._column}]")
-    
-    def _read_string(self) -> str:
+    def _read_string(self, quote: TokenType) -> str:
         start_pos: int = self._position
         end_pos: int
         while (TokenType.EOL.value != self._peek_char() != TokenType.EOF.value):
             self._advance()
             end_pos = self._position
             
-            if ((self._char == TokenType.DOUBLE_QUOTE.value) and (self._input[self._position - 1] != '\\')):
+            if ((self._char == quote.value) and (self._input[self._position - 1] != '\\')):
                 break
         else:
-            raise Exception(f"Double quotes must be in pairs and strings cannot stretch across multiple lines.\n[Line = {self._line}, Column = {self._column}]")
+            raise Exception(f"An extra or a missing single/double quote.\n[Line = {self._line}, Column = {self._column}]")
         
-        return self._input[(start_pos + 1) : end_pos]
+        return self._input[(start_pos + 1) : end_pos].replace('\\', '')
     
     def get_next_token(self) -> Token:
         self._advance()
@@ -240,12 +229,17 @@ class Lexer:
                 return Token(TokenType.R_ANGLE_BRACKET, TokenType.R_ANGLE_BRACKET.value, line, column)
 
             case TokenType.SINGLE_QUOTE.value:
-                token: Token = Token(TokenType.CHAR, self._read_char(), line, column)
+                char: str = self._read_string(TokenType.SINGLE_QUOTE)
+                if (len(char) > 1):
+                    raise Exception(f"Single quotes cannot enclose more than one character.\n[Line = {line}, Column = {column}]")
+                
+                token: Token = Token(TokenType.CHAR, char, line, column)
                 token.is_literal = True
+                
                 return token
             
             case TokenType.DOUBLE_QUOTE.value:
-                token: Token = Token(TokenType.STRING, self._read_string(), line, column)
+                token: Token = Token(TokenType.STRING, self._read_string(TokenType.DOUBLE_QUOTE), line, column)
                 token.is_literal = True
                 return token
             
