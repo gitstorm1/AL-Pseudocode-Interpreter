@@ -1,11 +1,8 @@
 # Local imports
 from interpreter.parser.parser import Parser, Lexer
 
-code = """DECLARE something : INTEGER
-DECLARE haseeb : STRING
-DECLARE zavi : DATE
-DECLARE hey : 25.4
-DECLARE another_thingoly : STRING"""
+code = """DECLARE something : STRING
+something <- "Truly something" """
 
 parser = Parser(Lexer(code))
 
@@ -20,4 +17,4 @@ for statement in parsed_program.statements:
 
 print("Errors:")
 for error in parsed_program.errors:
-    print(error)
+    print(repr(error))
