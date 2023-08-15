@@ -138,9 +138,9 @@ class Token:
         
         self.line, self.column = line, column
         
+        # self.is_literal = None OR True
         # Declared and used by all the native datatypes
         # Distinguishes between literals and types (think of type hints)
-        # self.is_literal = None OR True
     
     def __repr__(self) -> str:
         return f'Token({self.type}, {repr(self.literal)}, line={self.line}, column={self.column})'
