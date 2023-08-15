@@ -24,23 +24,28 @@ class Parser:
     
     def _parse_DECLARE(self) -> (ast.DECLARE_statement | None):
         if (self._next_token.type != TokenType.IDENTIFIER):
-            print(f"[ParseError] line {self._next_token.line}, col {self._next_token.column}; expected {TokenType.IDENTIFIER.value}, got {repr(self._next_token.literal)}")
+            print(f"[SyntaxError] line {self._next_token.line}, col {self._next_token.column}; expected {TokenType.IDENTIFIER.value}, got {repr(self._next_token.literal)}")
             return
         self._advance()
         
         identifier: Token = self._current_token
         
         if (self._next_token.type != TokenType.COLON):
-            print(f"[ParseError] line {self._next_token.line}, col {self._next_token.column}; expected {TokenType.COLON.value}, got {repr(self._next_token.literal)}")
+            print(f"[SyntaxError] line {self._next_token.line}, col {self._next_token.column}; expected {TokenType.COLON.value}, got {repr(self._next_token.literal)}")
             return
         self._advance()
         
         if ((self._next_token.type not in self.DATATYPE_TOKEN_TYPES) or (hasattr(self._next_token, 'is_literal'))):
-            print(f"[ParseError] line {self._next_token.line}, col {self._next_token.column}; expected a datatype, got {repr(self._next_token.literal)}")
+            print(f"[SyntaxError] line {self._next_token.line}, col {self._next_token.column}; expected a datatype, got {repr(self._next_token.literal)}")
             return
         self._advance()
         
         datatype: TokenType = self._current_token.type
+        
+        if (TokenType.EOL != self._next_token.type != TokenType.EOF):
+            print(f"[SyntaxError] line {self._next_token.line}, col {self._next_token.column}; expected the line to end, got {repr(self._next_token.literal)}")
+            return
+        self._advance()
         
         return ast.DECLARE_statement(identifier, datatype)
     

@@ -6,7 +6,7 @@ DECLARE something : INTEGER
 DECLARE haseeb : STRING
 DECLARE zavi : DATE
 DECLARE hey : 25.4
-DECLARE another_thingoly'l'
+DECLARE another_thingoly : STRING
 """
 
 parser = Parser(Lexer(code))
