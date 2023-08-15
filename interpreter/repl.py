@@ -2,7 +2,7 @@
 import cmd, enum
 
 # Local imports
-from .lexer import Lexer, Token, TokenType
+from .lexer.lexer import Lexer, Token, TokenType
 
 def output_tokens(input: str) -> None:
     lexer = Lexer(input)

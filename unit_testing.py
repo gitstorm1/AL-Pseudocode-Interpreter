@@ -1,5 +1,5 @@
 # Local imports
-from interpreter.parser import Parser, Lexer
+from interpreter.parser.parser import Parser, Lexer
 
 code = """DECLARE something : INTEGER
 DECLARE haseeb : STRING

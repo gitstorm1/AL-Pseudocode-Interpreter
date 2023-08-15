@@ -1,5 +1,5 @@
-from .token import Token, TokenType
-from .errors import Error
+from ..token.token import Token, TokenType
+from ..errors.errors import Error
 
 class Node:
     pass

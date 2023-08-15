@@ -1,6 +1,6 @@
 # Local imports
-from .lexer import Lexer, Token, TokenType
-from .errors import ParseError
+from ..lexer.lexer import Lexer, Token, TokenType
+from ..errors.errors import ParseError
 from . import ast
 
 class Parser:
