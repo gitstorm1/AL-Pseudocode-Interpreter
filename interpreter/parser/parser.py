@@ -63,7 +63,7 @@ class Parser:
                 return self._parse_DECLARE()
     
     def _parse_expression(self):
-        pass
+        print("Parse as an expression instead:", self._current_token)
     
     def parse_program(self) -> ast.ParsedProgram:
         parsed_program = self._parsed_program
@@ -74,7 +74,7 @@ class Parser:
             if (statement):
                 parsed_program.statements.append(statement)
             elif (TokenType.EOL != self._current_token.type != TokenType.EOF):
-                print("Parse as an expression instead:", self._current_token)
+                self._parse_expression()
             
             self._advance()
         
