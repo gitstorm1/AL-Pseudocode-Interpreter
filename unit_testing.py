@@ -3,9 +3,16 @@ from interpreter.parser import Parser, Lexer
 
 code = """
 DECLARE something : INTEGER
-DECLARE
-DECLARE another_thing
+DECLARE haseeb : STRING
+DECLARE zavi : DATE
+DECLARE hey : 25.4
+DECLARE another_thingoly'l'
 """
 
 parser = Parser(Lexer(code))
-parser.parse_program()
+
+program = parser.parse_program()
+
+print("* AFTER PARSE:")
+for statement in program.statements:
+    print(statement)
