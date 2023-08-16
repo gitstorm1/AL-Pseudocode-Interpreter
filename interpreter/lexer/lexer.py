@@ -1,5 +1,5 @@
 # Local imports
-from ..token.token import Token, TokenType
+from ..token import Token, TokenType
 
 class Lexer:
     SIMPLE_TOKEN_TYPES: dict[str, TokenType] = {

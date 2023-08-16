@@ -1,7 +1,8 @@
 # Local imports
-from ..lexer.lexer import Lexer, Token, TokenType
-from ..errors.errors import ParseError
-from . import ast
+from ..token import Token, TokenType
+from ..lexer import Lexer
+from ..errors import ParseError
+from .ast import Node, ParsedProgram, statements, expressions
 
 class Parser:
     DATATYPE_TOKEN_TYPES: list[TokenType] = [
@@ -19,7 +20,7 @@ class Parser:
         self._current_token: Token = lexer.get_next_token()
         self._next_token: Token = lexer.get_next_token()
         
-        self._parsed_program = ast.ParsedProgram()
+        self._parsed_program = ParsedProgram()
     
     def _advance(self) -> None:
         self._current_token: Token = self._next_token
@@ -34,11 +35,11 @@ class Parser:
         if (skip_line):
             self._skip_remaining_line()
     
-    def _parse_DECLARE_ARRAY(self) -> (ast.DECLARE_ARRAY_statement | None):
+    def _parse_DECLARE_ARRAY(self) -> (statements.DECLARE_ARRAY | None):
         # Implement later
         self._skip_remaining_line()
     
-    def _parse_DECLARE(self) -> (ast.DECLARE_statement | None):
+    def _parse_DECLARE(self) -> (statements.DECLARE | None):
         if (self._next_token.type != TokenType.IDENTIFIER):
             return self._error(ParseError(TokenType.IDENTIFIER.value, self._next_token.literal, self._next_token.line, self._next_token.column), skip_line=True)
         self._advance()
@@ -61,9 +62,9 @@ class Parser:
             return self._error(ParseError('end of line', self._next_token.literal, self._next_token.line, self._next_token.column), skip_line=True)
         self._advance()
         
-        return ast.DECLARE_statement(identifier, datatype)
+        return statements.DECLARE(identifier, datatype)
     
-    def _parse_CONSTANT(self) -> (ast.CONSTANT_statement | None):
+    def _parse_CONSTANT(self) -> (statements.CONSTANT | None):
         if (self._next_token.type != TokenType.IDENTIFIER):
             return self._error(ParseError(TokenType.IDENTIFIER.value, self._next_token.literal, self._next_token.line, self._next_token.column), skip_line=True)
         self._advance()
@@ -77,9 +78,9 @@ class Parser:
         # Will implement expression parsing later
         self._skip_remaining_line()
         
-        return ast.CONSTANT_statement(identifier)
+        return statements.CONSTANT(identifier)
     
-    def _parse_ASSIGNMENT(self) -> (ast.ASSIGNMENT_statement | None):
+    def _parse_ASSIGNMENT(self) -> (statements.ASSIGNMENT | None):
         identifier: Token = self._current_token
         
         if (self._next_token.type != TokenType.ASSIGNMENT):
@@ -89,9 +90,9 @@ class Parser:
         # Will implement expression parsing later
         self._skip_remaining_line()
         
-        return ast.ASSIGNMENT_statement(identifier)
+        return statements.ASSIGNMENT(identifier)
     
-    def _parse_statement(self) -> (ast.Statement | None):
+    def _parse_statement(self) -> (statements.Statement | None):
         match(self._current_token.type):
             case TokenType.DECLARE:
                 return self._parse_DECLARE()
@@ -104,11 +105,11 @@ class Parser:
     def _parse_expression(self):
         print("Parse as an expression instead:", self._current_token)
     
-    def parse_program(self) -> ast.ParsedProgram:
+    def parse_program(self) -> ParsedProgram:
         parsed_program = self._parsed_program
         
         while (self._current_token.type != TokenType.EOF):
-            statement: (ast.Statement | None) = self._parse_statement()
+            statement: (statements.Statement | None) = self._parse_statement()
             
             if (statement):
                 parsed_program.statements.append(statement)
