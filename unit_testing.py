@@ -2,7 +2,10 @@
 from interpreter.parser.parser import Parser, Lexer
 
 code = """DECLARE something : STRING
-something <- "Truly something" """
+DECLARE test : ARRAY skalks
+something <- "Truly something"
+CONSTANT num_students = 50
+-5"""
 
 parser = Parser(Lexer(code))
 

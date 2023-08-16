@@ -34,6 +34,10 @@ class Parser:
         if (skip_line):
             self._skip_remaining_line()
     
+    def _parse_DECLARE_ARRAY(self) -> (ast.DECLARE_ARRAY_statement | None):
+        # Implement later
+        self._skip_remaining_line()
+    
     def _parse_DECLARE(self) -> (ast.DECLARE_statement | None):
         if (self._next_token.type != TokenType.IDENTIFIER):
             return self._error(ParseError(TokenType.IDENTIFIER.value, self._next_token.literal, self._next_token.line, self._next_token.column), skip_line=True)
@@ -45,6 +49,8 @@ class Parser:
             return self._error(ParseError(TokenType.COLON.value, self._next_token.literal, self._next_token.line, self._next_token.column), skip_line=True)
         self._advance()
         
+        if (self._next_token.type == TokenType.ARRAY):
+            return self._parse_DECLARE_ARRAY()
         if ((self._next_token.type not in self.DATATYPE_TOKEN_TYPES) or (hasattr(self._next_token, 'is_literal'))):
             return self._error(ParseError('a datatype', self._next_token.literal, self._next_token.line, self._next_token.column), skip_line=True)
         self._advance()
@@ -57,11 +63,27 @@ class Parser:
         
         return ast.DECLARE_statement(identifier, datatype)
     
+    def _parse_CONSTANT(self) -> (ast.CONSTANT_statement | None):
+        if (self._next_token.type != TokenType.IDENTIFIER):
+            return self._error(ParseError(TokenType.IDENTIFIER.value, self._next_token.literal, self._next_token.line, self._next_token.column), skip_line=True)
+        self._advance()
+        
+        identifier: Token = self._current_token
+        
+        if (self._next_token.type != TokenType.EQUALS_TO):
+            return self._error(ParseError(TokenType.EQUALS_TO.value, self._next_token.literal, self._next_token.line, self._next_token.column), skip_line=True)
+        self._advance()
+        
+        # Will implement expression parsing later
+        self._skip_remaining_line()
+        
+        return ast.CONSTANT_statement(identifier)
+    
     def _parse_ASSIGNMENT(self) -> (ast.ASSIGNMENT_statement | None):
         identifier: Token = self._current_token
         
         if (self._next_token.type != TokenType.ASSIGNMENT):
-            return self._error(ParseError(TokenType.ASSIGNMENT.value, self._next_token.literal, self._next_token.line, self._next_token.column), skip_line=True)
+            return
         self._advance()
         
         # Will implement expression parsing later
@@ -73,6 +95,8 @@ class Parser:
         match(self._current_token.type):
             case TokenType.DECLARE:
                 return self._parse_DECLARE()
+            case TokenType.CONSTANT:
+                return self._parse_CONSTANT()
             case TokenType.IDENTIFIER:
                 return self._parse_ASSIGNMENT()
     
