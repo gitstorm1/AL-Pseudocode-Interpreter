@@ -4,6 +4,16 @@ from ..lexer import Lexer
 from ..errors import ParseError, ExpressionError
 from .ast import Node, ParsedProgram, statements, expressions
 
+binding_powers = {
+    TokenType.PLUS: (1, 2),
+    TokenType.HYPHEN: (1, 2),
+    
+    TokenType.ASTERISK: (3, 4),
+    TokenType.FORWARD_SLASH: (3, 4),
+    TokenType.INT_DIV: (3, 4),
+    TokenType.MODULUS: (3, 4),
+}
+
 class Parser:
     DATATYPE_TOKEN_TYPES: list[TokenType] = [
         TokenType.INTEGER, 
@@ -101,7 +111,7 @@ class Parser:
             case TokenType.IDENTIFIER:
                 return self._parse_ASSIGNMENT()
     
-    def _parse_expression(self) -> expressions.Expression:
+    def _parse_expression(self, bp: int) -> expressions.Expression:
         lhs: expressions.Expression
         match(self._current_token.type):
             case TokenType.INTEGER:
@@ -115,11 +125,18 @@ class Parser:
         
         self._advance()
         
-        match(self._current_token.type):
-            case TokenType.PLUS:
-                self._advance()
-                rhs: expressions.Expression = self._parse_expression()
-                lhs = expressions.BinaryOperator(TokenType.PLUS, lhs, rhs)
+        while (TokenType.EOL != self._current_token.type != TokenType.EOF):
+            operator_type: TokenType = self._current_token.type
+            
+            lbp, rbp = binding_powers.get(operator_type)
+            
+            if (lbp < bp):
+                break
+            
+            self._advance()
+            
+            rhs: expressions.Expression = self._parse_expression(rbp)
+            lhs = expressions.BinaryOperator(operator_type, lhs, rhs)
         
         return lhs
     
@@ -132,7 +149,7 @@ class Parser:
             if (statement):
                 parsed_program.statements.append(statement)
             elif (TokenType.EOL != self._current_token.type != TokenType.EOF):
-                print(self._parse_expression())
+                print(self._parse_expression(0))
             
             self._advance()
         

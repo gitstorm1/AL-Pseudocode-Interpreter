@@ -23,4 +23,4 @@ class BinaryOperator(Expression):
         self.lhs: Expression = lhs
         self.rhs: Expression = rhs
     def __str__(self) -> str:
-        return f"Expression.BinaryOperator: {str(self.lhs)}{self.operator.value}{str(self.rhs)}"
+        return f"({str(self.lhs)} {self.operator.value} {str(self.rhs)})"
