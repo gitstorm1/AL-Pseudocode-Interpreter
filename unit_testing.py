@@ -1,11 +1,9 @@
 # Local imports
 from interpreter.parser.parser import Parser, Lexer
 
-code = """DECLARE something : STRING
-DECLARE test : ARRAY skalks
-something <- "Truly something"
-CONSTANT num_students = 50
--5"""
+code = """
+5+2
+"""
 
 parser = Parser(Lexer(code))
 

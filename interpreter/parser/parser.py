@@ -1,7 +1,7 @@
 # Local imports
 from ..token import Token, TokenType
 from ..lexer import Lexer
-from ..errors import ParseError
+from ..errors import ParseError, ExpressionError
 from .ast import Node, ParsedProgram, statements, expressions
 
 class Parser:
@@ -101,8 +101,27 @@ class Parser:
             case TokenType.IDENTIFIER:
                 return self._parse_ASSIGNMENT()
     
-    def _parse_expression(self):
-        pass
+    def _parse_expression(self) -> expressions.Expression:
+        lhs: expressions.Expression
+        match(self._current_token.type):
+            case TokenType.INTEGER:
+                lhs = expressions.Atom(self._current_token)
+            case TokenType.REAL:
+                lhs = expressions.Atom(self._current_token)
+            case TokenType.IDENTIFIER:
+                lhs = expressions.Atom(self._current_token)
+            case _:
+                raise ExpressionError(self._current_token.line, self._current_token.column)
+        
+        self._advance()
+        
+        match(self._current_token.type):
+            case TokenType.PLUS:
+                self._advance()
+                rhs: expressions.Expression = self._parse_expression()
+                lhs = expressions.BinaryOperator(TokenType.PLUS, lhs, rhs)
+        
+        return lhs
     
     def parse_program(self) -> ParsedProgram:
         parsed_program = self._parsed_program
@@ -113,7 +132,7 @@ class Parser:
             if (statement):
                 parsed_program.statements.append(statement)
             elif (TokenType.EOL != self._current_token.type != TokenType.EOF):
-                self._parse_expression()
+                print(self._parse_expression())
             
             self._advance()
         
