@@ -249,14 +249,14 @@ class Lexer:
                     self._advance()
                     string = self._read_string(TokenType.DOUBLE_QUOTE)
                     try:
-                        mm, dd, yyyy = string.split('/')
-                        mm = int(mm)
+                        dd, mm, yyyy = string.split('/')
                         dd = int(dd)
+                        mm = int(mm)
                         yyyy = int(yyyy)
-                        if ((mm < 0) or (mm > 12) or (dd < 0) or (dd > 31) or (yyyy < 0) or (yyyy > 9999)):
+                        if ((dd < 0) or (dd > 31) or (mm < 0) or (mm > 12) or (yyyy < 0) or (yyyy > 9999)):
                             raise Exception()
                     except:
-                        raise Exception(f"Incorrect date format.\nThe correct format is: D\"mm/dd/yyyy\"\n[Line = {line}, Column = {column}]")
+                        raise Exception(f"Incorrect date format.\nThe correct format is: D\"dd/mm/yyyy\"\n[Line = {line}, Column = {column}]")
                     token: Token = Token(TokenType.DATE, string, line, column)
                     token.is_literal = True
                     return token
