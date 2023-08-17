@@ -169,6 +169,9 @@ class Parser:
         
         return inside_expr
     
+    def _parse_expression_postfix(self) -> (expressions.Expression | None):
+        pass
+    
     def _parse_expression(self, other_bp: int) -> expressions.Expression:
         lhs: (expressions.Expression | None) = self._parse_expression_atoms()
         if (not lhs):
@@ -177,6 +180,9 @@ class Parser:
                 lhs = self._parse_expression_parentheses()
                 if (not lhs):
                     raise ExpressionError(self._current_token.line, self._current_token.column, self._current_token.literal)
+        
+        
+        
         
         while (TokenType.EOL != self._next_token.type != TokenType.EOF):
             operator: Token = self._next_token

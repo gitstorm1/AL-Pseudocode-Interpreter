@@ -38,3 +38,5 @@ class PostfixOperator(Expression):
         super().__init__()
         self.operand: Expression = operand
         self.operator: Token = operator
+    def __str__(self) -> str:
+        return f"({str(self.operand)}{self.operator.type.value})"
