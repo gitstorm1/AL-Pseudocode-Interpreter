@@ -5,13 +5,33 @@ from ..errors import ParseError, ExpressionError
 from .ast import Node, ParsedProgram, statements, expressions
 
 binding_powers = {
-    TokenType.PLUS: (1, 2),
-    TokenType.HYPHEN: (1, 2),
+    'prefix': {
+        TokenType.HYPHEN: 10,
+    },
+    'infix': {
+        TokenType.EQUALS_TO: (1, 1),
+        TokenType.NOT_EQUALS_TO: (1, 1),
+        
+        TokenType.AMPERSAND: (2, 3),
+        
+        TokenType.L_ANGLE_BRACKET: (4, 5),
+        TokenType.LESSER_OR_EQUALS_TO: (4, 5),
+        TokenType.R_ANGLE_BRACKET: (4, 5),
+        TokenType.GREATER_OR_EQUALS_TO: (4, 5),
+        
+        TokenType.PLUS: (6, 7),
+        TokenType.HYPHEN: (6, 7),
     
-    TokenType.ASTERISK: (3, 4),
-    TokenType.FORWARD_SLASH: (3, 4),
-    TokenType.INT_DIV: (3, 4),
-    TokenType.MODULUS: (3, 4),
+        TokenType.ASTERISK: (8, 9),
+        TokenType.FORWARD_SLASH: (8, 9),
+        TokenType.INT_DIV: (8, 9),
+        TokenType.MODULUS: (8, 9),
+        
+        TokenType.PERIOD: (12, 13),
+    },
+    'postfix': {
+        TokenType.CARET: 11
+    },
 }
 
 class Parser:
@@ -111,32 +131,49 @@ class Parser:
             case TokenType.IDENTIFIER:
                 return self._parse_ASSIGNMENT()
     
-    def _parse_expression(self, bp: int) -> expressions.Expression:
-        lhs: expressions.Expression
-        match(self._current_token.type):
+    def _parse_expression_atoms(self) -> (expressions.Atom | None):
+        token: Token = self._current_token
+        match(token.type):
             case TokenType.INTEGER:
-                lhs = expressions.Atom(self._current_token)
+                pass
             case TokenType.REAL:
-                lhs = expressions.Atom(self._current_token)
+                pass
             case TokenType.IDENTIFIER:
-                lhs = expressions.Atom(self._current_token)
+                pass
             case _:
-                raise ExpressionError(self._current_token.line, self._current_token.column)
-        
-        self._advance()
-        
-        while (TokenType.EOL != self._current_token.type != TokenType.EOF):
-            operator_type: TokenType = self._current_token.type
-            
-            lbp, rbp = binding_powers.get(operator_type)
-            
-            if (lbp < bp):
-                break
-            
+                return None
+        return expressions.Atom(self._current_token)
+    
+    def _parse_expression_prefix_operator(self) -> (expressions.PrefixOperator | None):
+        operator: Token = self._current_token
+        if (operator.type == TokenType.HYPHEN):
             self._advance()
-            
-            rhs: expressions.Expression = self._parse_expression(rbp)
-            lhs = expressions.BinaryOperator(operator_type, lhs, rhs)
+            operand: expressions.Expression = self._parse_expression(5)
+            return expressions.PrefixOperator(operator, operand)
+        return None
+    
+    def _parse_expression(self, other_bp: int) -> expressions.Expression:
+        lhs: (expressions.Expression | None) = self._parse_expression_atoms()
+        if (not lhs):
+            lhs = self._parse_expression_prefix_operator()
+            if (not lhs):
+                raise ExpressionError(self._current_token.line, self._current_token.column, self._current_token.literal)
+        
+        while (TokenType.EOL != self._next_token.type != TokenType.EOF):
+            operator: Token = self._next_token
+            l_bp, r_bp = 0, 0
+            if ((operator.type == TokenType.PLUS) or (operator.type == TokenType.HYPHEN)):
+                l_bp, r_bp = 1, 2
+            elif ((operator.type == TokenType.ASTERISK) or (operator.type == TokenType.FORWARD_SLASH)
+                  or (operator.type == TokenType.MODULUS) or (operator.type == TokenType.INT_DIV)):
+                l_bp, r_bp = 3, 4
+            if (other_bp >= l_bp):
+                break
+            self._advance()
+            self._advance()
+            rhs: expressions.Expression = self._parse_expression(r_bp)
+            lhs = expressions.InfixOperator(operator, lhs, rhs)
+                
         
         return lhs
     

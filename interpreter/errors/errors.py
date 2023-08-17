@@ -7,6 +7,6 @@ class ParseError(Error):
         self.line, self.column = line, column
 
 class ExpressionError(Error):
-    def __init__(self, line: int, column: int) -> None:
-        super().__init__(f"line {line}, col {column}; unexpected token")
+    def __init__(self, line: int, column: int, token_literal: str) -> None:
+        super().__init__(f"line {line}, col {column}; unexpected token {token_literal}")
         self.line, self.column = line, column
