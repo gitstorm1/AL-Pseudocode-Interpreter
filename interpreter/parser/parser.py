@@ -101,9 +101,8 @@ class Parser:
             case TokenType.IDENTIFIER:
                 return self._parse_ASSIGNMENT()
     
-    # Note: Stand-alone expressions like Python will probably not be supported.
     def _parse_expression(self):
-        print("Parse as an expression instead:", self._current_token)
+        pass
     
     def parse_program(self) -> ParsedProgram:
         parsed_program = self._parsed_program
