@@ -6,31 +6,36 @@ from .ast import Node, ParsedProgram, statements, expressions
 
 binding_powers = {
     'prefix': {
-        TokenType.HYPHEN: 10,
+        TokenType.HYPHEN: 17,
     },
     'infix': {
-        TokenType.EQUALS_TO: (1, 1),
-        TokenType.NOT_EQUALS_TO: (1, 1),
+        TokenType.AMPERSAND: (1, 2),
         
-        TokenType.AMPERSAND: (2, 3),
+        TokenType.OR: (3, 4),
+        TokenType.AND: (3, 4),
         
-        TokenType.L_ANGLE_BRACKET: (4, 5),
-        TokenType.LESSER_OR_EQUALS_TO: (4, 5),
-        TokenType.R_ANGLE_BRACKET: (4, 5),
-        TokenType.GREATER_OR_EQUALS_TO: (4, 5),
+        TokenType.NOT: (5, 6),
         
-        TokenType.PLUS: (6, 7),
-        TokenType.HYPHEN: (6, 7),
+        TokenType.EQUALS_TO: (7, 8),
+        TokenType.NOT_EQUALS_TO: (9, 10),
+        
+        TokenType.L_ANGLE_BRACKET: (11, 12),
+        TokenType.LESSER_OR_EQUALS_TO: (11, 12),
+        TokenType.R_ANGLE_BRACKET: (11, 12),
+        TokenType.GREATER_OR_EQUALS_TO: (11, 12),
+        
+        TokenType.PLUS: (13, 14),
+        TokenType.HYPHEN: (13, 14),
     
-        TokenType.ASTERISK: (8, 9),
-        TokenType.FORWARD_SLASH: (8, 9),
-        TokenType.INT_DIV: (8, 9),
-        TokenType.MODULUS: (8, 9),
+        TokenType.ASTERISK: (15, 16),
+        TokenType.FORWARD_SLASH: (15, 16),
+        TokenType.INT_DIV: (15, 16),
+        TokenType.MODULUS: (15, 16),
         
-        TokenType.PERIOD: (12, 13),
+        TokenType.PERIOD: (19, 20),
     },
     'postfix': {
-        TokenType.CARET: 11
+        TokenType.CARET: 18
     },
 }
 
@@ -133,24 +138,20 @@ class Parser:
     
     def _parse_expression_atoms(self) -> (expressions.Atom | None):
         token: Token = self._current_token
-        match(token.type):
-            case TokenType.INTEGER:
-                pass
-            case TokenType.REAL:
-                pass
-            case TokenType.IDENTIFIER:
-                pass
-            case _:
-                return None
-        return expressions.Atom(self._current_token)
+        if ((token.type == TokenType.INTEGER) or (token.type == TokenType.REAL) or (token.type == TokenType.IDENTIFIER)):
+            return expressions.Atom(token)
     
     def _parse_expression_prefix_operator(self) -> (expressions.PrefixOperator | None):
         operator: Token = self._current_token
-        if (operator.type == TokenType.HYPHEN):
-            self._advance()
-            operand: expressions.Expression = self._parse_expression(5)
-            return expressions.PrefixOperator(operator, operand)
-        return None
+        bp: (int | None) = binding_powers['prefix'].get(operator.type)
+        
+        if (not bp):
+            return
+        
+        self._advance()
+        
+        operand: expressions.Expression = self._parse_expression(bp)
+        return expressions.PrefixOperator(operator, operand)
     
     def _parse_expression(self, other_bp: int) -> expressions.Expression:
         lhs: (expressions.Expression | None) = self._parse_expression_atoms()
@@ -161,17 +162,18 @@ class Parser:
         
         while (TokenType.EOL != self._next_token.type != TokenType.EOF):
             operator: Token = self._next_token
-            l_bp, r_bp = 0, 0
-            if ((operator.type == TokenType.PLUS) or (operator.type == TokenType.HYPHEN)):
-                l_bp, r_bp = 1, 2
-            elif ((operator.type == TokenType.ASTERISK) or (operator.type == TokenType.FORWARD_SLASH)
-                  or (operator.type == TokenType.MODULUS) or (operator.type == TokenType.INT_DIV)):
-                l_bp, r_bp = 3, 4
-            if (other_bp >= l_bp):
+            bp: (tuple[int, int] | None) = binding_powers['infix'].get(operator.type)
+            
+            if (not bp):
                 break
+            
+            if (other_bp >= bp[0]):
+                break
+            
             self._advance()
             self._advance()
-            rhs: expressions.Expression = self._parse_expression(r_bp)
+            
+            rhs: expressions.Expression = self._parse_expression(bp[1])
             lhs = expressions.InfixOperator(operator, lhs, rhs)
                 
         
