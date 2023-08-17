@@ -32,10 +32,11 @@ binding_powers = {
         TokenType.INT_DIV: (15, 16),
         TokenType.MODULUS: (15, 16),
         
-        TokenType.PERIOD: (19, 20),
+        TokenType.CARET: (19, 18),
+        
+        TokenType.PERIOD: (20, 21),
     },
     'postfix': {
-        TokenType.CARET: 18
     },
 }
 
@@ -153,12 +154,29 @@ class Parser:
         operand: expressions.Expression = self._parse_expression(bp)
         return expressions.PrefixOperator(operator, operand)
     
+    def _parse_expression_parentheses(self) -> (expressions.Expression | None):
+        if (self._current_token.type != TokenType.L_PARENTHESES):
+            return
+        
+        self._advance()
+        
+        inside_expr: expressions.Expression = self._parse_expression(0)
+        
+        if (self._next_token.type != TokenType.R_PARENTHESES):
+            return
+        
+        self._advance()
+        
+        return inside_expr
+    
     def _parse_expression(self, other_bp: int) -> expressions.Expression:
         lhs: (expressions.Expression | None) = self._parse_expression_atoms()
         if (not lhs):
             lhs = self._parse_expression_prefix_operator()
             if (not lhs):
-                raise ExpressionError(self._current_token.line, self._current_token.column, self._current_token.literal)
+                lhs = self._parse_expression_parentheses()
+                if (not lhs):
+                    raise ExpressionError(self._current_token.line, self._current_token.column, self._current_token.literal)
         
         while (TokenType.EOL != self._next_token.type != TokenType.EOF):
             operator: Token = self._next_token
@@ -175,7 +193,6 @@ class Parser:
             
             rhs: expressions.Expression = self._parse_expression(bp[1])
             lhs = expressions.InfixOperator(operator, lhs, rhs)
-                
         
         return lhs
     
