@@ -7,14 +7,13 @@ from .ast import Node, ParsedProgram, statements, expressions
 binding_powers = {
     'prefix': {
         TokenType.HYPHEN: 17,
+        TokenType.NOT: 5
     },
     'infix': {
         TokenType.AMPERSAND: (1, 2),
         
         TokenType.OR: (3, 4),
         TokenType.AND: (3, 4),
-        
-        TokenType.NOT: (5, 6),
         
         TokenType.EQUALS_TO: (7, 8),
         TokenType.NOT_EQUALS_TO: (9, 10),
@@ -186,6 +185,9 @@ class Parser:
             bp: (tuple[int, int] | None) = binding_powers['infix'].get(operator.type)
             
             if (operator.type == TokenType.L_PARENTHESES):
+                if ((not isinstance(lhs, expressions.Atom)) or (lhs.token.type != TokenType.IDENTIFIER)):
+                    raise ParseError('function identifier', 'something else', operator.line, operator.column)
+                
                 self._advance()
                 self._advance()
                 
