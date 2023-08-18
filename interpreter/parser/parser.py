@@ -181,9 +181,6 @@ class Parser:
                 if (not lhs):
                     raise ExpressionError(self._current_token.line, self._current_token.column, self._current_token.literal)
         
-        
-        
-        
         while (TokenType.EOL != self._next_token.type != TokenType.EOF):
             operator: Token = self._next_token
             bp: (tuple[int, int] | None) = binding_powers['infix'].get(operator.type)
@@ -191,21 +188,23 @@ class Parser:
             if (operator.type == TokenType.L_PARENTHESES):
                 self._advance()
                 self._advance()
-                rhs: expressions.Expression = self._parse_expression(0)
+                
+                arguments: list[expressions.Expression] = [self._parse_expression(0)]
                 while (self._next_token.type == TokenType.COMMA):
-                    operator2: Token = self._next_token
                     self._advance()
                     self._advance()
-                    rhs = expressions.InfixOperator(operator2, rhs, self._parse_expression(0))
+                    
+                    arguments.append(self._parse_expression(0))
+                
                 if (self._next_token.type != TokenType.R_PARENTHESES):
                     raise ExpressionError(self._next_token.line, self._next_token.column, self._next_token.literal)
+                
                 self._advance()
-                lhs = expressions.InfixOperator(operator, lhs, rhs)
+                
+                lhs = expressions.FunctionCall(lhs, arguments)
+                continue
             
-            if (not bp):
-                break
-            
-            if (other_bp >= bp[0]):
+            if ((not bp) or (other_bp >= bp[0])):
                 break
             
             self._advance()
@@ -226,6 +225,9 @@ class Parser:
                 parsed_program.statements.append(statement)
             elif (TokenType.EOL != self._current_token.type != TokenType.EOF):
                 print(self._parse_expression(0))
+                if (TokenType.EOL != self._next_token.type != TokenType.EOF):
+                    print("Error.")
+                self._skip_remaining_line()
             
             self._advance()
         

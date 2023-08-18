@@ -31,7 +31,18 @@ class InfixOperator(Expression):
         self.lhs: Expression = lhs
         self.rhs: Expression = rhs
     def __str__(self) -> str:
-        return f"({str(self.lhs)}{'' if (self.operator.type == TokenType.L_PARENTHESES) else self.operator.type.value}{str(self.rhs)})"
+        return f"({str(self.lhs)} {self.operator.type.value} {str(self.rhs)})"
+
+class FunctionCall(Expression):
+    def __init__(self, identifier: Expression, arguments: list[Expression]) -> None:
+        super().__init__()
+        self.identifier: Expression = identifier
+        self.arguments: list[Expression] = arguments
+    def __str__(self) -> str:
+        args: str = ''
+        for arg in self.arguments:
+            args += str(arg) + ', '
+        return f"{str(self.identifier)}({args[0:-2]})"
 
 class PostfixOperator(Expression):
     def __init__(self, operand: Expression, operator: Token) -> None:

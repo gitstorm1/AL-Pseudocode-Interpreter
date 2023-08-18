@@ -2,7 +2,7 @@
 from interpreter.parser.parser import Parser, Lexer
 
 code = """
-(3+2) + func(5, 20, (6*5/2))
+(3+2) + func(5, 20, (6*5/2)) * 2 MOD 5
 """
 
 parser = Parser(Lexer(code))
