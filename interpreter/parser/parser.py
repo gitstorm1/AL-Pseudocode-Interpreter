@@ -153,7 +153,7 @@ class Parser:
         operand: expressions.Expression = self._parse_expression(bp)
         return expressions.PrefixOperator(operator, operand)
     
-    def _parse_expression_parentheses(self) -> (expressions.Expression | None):
+    def _parse_expression_enclosing_parentheses(self) -> (expressions.Expression | None):
         if (self._current_token.type != TokenType.L_PARENTHESES):
             return
         
@@ -176,7 +176,7 @@ class Parser:
         if (not lhs):
             lhs = self._parse_expression_prefix_operator()
             if (not lhs):
-                lhs = self._parse_expression_parentheses()
+                lhs = self._parse_expression_enclosing_parentheses()
                 if (not lhs):
                     raise ExpressionError(self._current_token.line, self._current_token.column, self._current_token.literal)
         
