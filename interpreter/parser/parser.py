@@ -184,15 +184,17 @@ class Parser:
             operator: Token = self._next_token
             bp: (tuple[int, int] | None) = binding_powers['infix'].get(operator.type)
             
-            if (operator.type == TokenType.L_PARENTHESES):
+            if ((operator.type == TokenType.L_PARENTHESES) or (operator.type == TokenType.L_SQ_BRACKET)):
                 if ((not isinstance(lhs, expressions.Atom)) or (lhs.token.type != TokenType.IDENTIFIER)):
-                    raise ParseError('function identifier', 'something else', operator.line, operator.column)
+                    raise ParseError('identifier', 'something else', operator.line, operator.column)
+                
+                right_delimiter: TokenType = (TokenType.R_PARENTHESES if (operator.type == TokenType.L_PARENTHESES) else TokenType.R_SQ_BRACKET)
                 
                 self._advance()
                 
-                arguments: list[expressions.Expression] = []
+                arguments: list[expressions.Expression] = [] # (or indexes, if the delimiters are square brackets)
                 
-                if (self._next_token.type != TokenType.R_PARENTHESES):
+                if (self._next_token.type != right_delimiter):
                     self._advance()
                     
                     arguments.append(self._parse_expression(0))
@@ -203,12 +205,12 @@ class Parser:
                         
                         arguments.append(self._parse_expression(0))
                     
-                    if (self._next_token.type != TokenType.R_PARENTHESES):
+                    if (self._next_token.type != right_delimiter):
                         raise ExpressionError(self._next_token.line, self._next_token.column, self._next_token.literal)
                 
                 self._advance()
                 
-                lhs = expressions.FunctionCall(lhs, arguments)
+                lhs = expressions.FunctionCall(lhs, arguments) if (operator.type == TokenType.L_PARENTHESES) else expressions.ArrayIndexing(lhs, arguments)
                 continue
             
             if ((not bp) or (other_bp >= bp[0])):
