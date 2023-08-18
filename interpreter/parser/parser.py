@@ -189,17 +189,22 @@ class Parser:
                     raise ParseError('function identifier', 'something else', operator.line, operator.column)
                 
                 self._advance()
-                self._advance()
                 
-                arguments: list[expressions.Expression] = [self._parse_expression(0)]
-                while (self._next_token.type == TokenType.COMMA):
-                    self._advance()
+                arguments: list[expressions.Expression] = []
+                
+                if (self._next_token.type != TokenType.R_PARENTHESES):
                     self._advance()
                     
                     arguments.append(self._parse_expression(0))
-                
-                if (self._next_token.type != TokenType.R_PARENTHESES):
-                    raise ExpressionError(self._next_token.line, self._next_token.column, self._next_token.literal)
+                    
+                    while (self._next_token.type == TokenType.COMMA):
+                        self._advance()
+                        self._advance()
+                        
+                        arguments.append(self._parse_expression(0))
+                    
+                    if (self._next_token.type != TokenType.R_PARENTHESES):
+                        raise ExpressionError(self._next_token.line, self._next_token.column, self._next_token.literal)
                 
                 self._advance()
                 

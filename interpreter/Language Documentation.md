@@ -58,7 +58,7 @@ DECLARE <identifier> : <datatype>
 2. `REAL`: A number with a decimal point. Example: `2.4`
 3. `CHAR`: A single character. Example: `'e'`
 4. `STRING`: A sequence of zero or more characters. Example: `"some text"`
-5. `BOOLEAN`: Represents a binary digit. Example: `TRUE`, `FALSE`
+5. `BOOLEAN`: Represents either true or false. Example: `TRUE`, `FALSE`
 6. `DATE`: Represents a date in the format `dd/mm/yyyy`. Example: `D"17/8/2023"`
 
 #### Arrays

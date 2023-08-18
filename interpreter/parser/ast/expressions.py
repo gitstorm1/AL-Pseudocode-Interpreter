@@ -44,6 +44,17 @@ class FunctionCall(Expression):
             args += str(arg) + ', '
         return f"{str(self.identifier)}({args[0:-2]})"
 
+class ArrayIndexing(Expression):
+    def __init__(self, identifier: Expression, indexes: list[Expression]) -> None:
+        super().__init__()
+        self.identifier: Expression = identifier
+        self.indexes: list[Expression] = indexes
+    def __str__(self) -> str:
+        indexes: str = ''
+        for index in self.indexes:
+            indexes += str(index) + ', '
+        return f"{str(self.identifier)}[{indexes[0:-2]}]"
+
 class PostfixOperator(Expression):
     def __init__(self, operand: Expression, operator: Token) -> None:
         super().__init__()
