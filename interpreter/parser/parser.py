@@ -188,6 +188,20 @@ class Parser:
             operator: Token = self._next_token
             bp: (tuple[int, int] | None) = binding_powers['infix'].get(operator.type)
             
+            if (operator.type == TokenType.L_PARENTHESES):
+                self._advance()
+                self._advance()
+                rhs: expressions.Expression = self._parse_expression(0)
+                while (self._next_token.type == TokenType.COMMA):
+                    operator2: Token = self._next_token
+                    self._advance()
+                    self._advance()
+                    rhs = expressions.InfixOperator(operator2, rhs, self._parse_expression(0))
+                if (self._next_token.type != TokenType.R_PARENTHESES):
+                    raise ExpressionError(self._next_token.line, self._next_token.column, self._next_token.literal)
+                self._advance()
+                lhs = expressions.InfixOperator(operator, lhs, rhs)
+            
             if (not bp):
                 break
             

@@ -2,7 +2,7 @@
 from interpreter.parser.parser import Parser, Lexer
 
 code = """
-(-5 + 2)*3 /hey MOD 40 DIV 95.5 >= (((5 + 2))) AND humans.haseeb.brain.size^2^2^2 = 0 AND zavi.(((brain.iq))) = 0
+(3+2) + func(5, 20, (6*5/2))
 """
 
 parser = Parser(Lexer(code))
