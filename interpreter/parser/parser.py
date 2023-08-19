@@ -1,3 +1,6 @@
+# Standard library imports
+from enum import Enum
+
 # Local imports
 from ..token import Token, TokenType
 from ..lexer import Lexer
@@ -6,8 +9,8 @@ from .ast import Node, ParsedProgram, statements, expressions
 
 binding_powers = {
     'prefix': {
-        TokenType.HYPHEN: 17,
-        TokenType.NOT: 5
+        TokenType.HYPHEN: ((), 17),
+        TokenType.NOT: ((), 5)
     },
     'infix': {
         TokenType.AMPERSAND: (1, 2),
@@ -136,118 +139,107 @@ class Parser:
             case TokenType.IDENTIFIER:
                 return self._parse_ASSIGNMENT()
     
-    def _parse_expression_atoms(self) -> (expressions.Atom | None):
-        token: Token = self._current_token
-        if ((token.type == TokenType.INTEGER) or (token.type == TokenType.REAL) or (token.type == TokenType.IDENTIFIER)):
-            return expressions.Atom(token)
-        if ((token.type == TokenType.STRING) and (hasattr(token, 'is_literal'))):
-            return expressions.Atom(token)
-    
-    def _parse_expression_prefix_operator(self) -> (expressions.PrefixOperator | None):
-        operator: Token = self._current_token
-        bp: (int | None) = binding_powers['prefix'].get(operator.type)
+    def _parse_expression_atom(self) -> (expressions.Atom | None):
+        current_token: Token = self._current_token
         
+        match(current_token.type):
+            case TokenType.INTEGER | TokenType.REAL | TokenType.IDENTIFIER:
+                self._advance()
+                return expressions.Atom(current_token)
+            case TokenType.STRING:
+                if (hasattr(current_token, 'is_literal')):
+                    self._advance()
+                    return expressions.Atom(current_token) 
+
+        return None
+    
+    def _parse_expression_prefix(self) -> (expressions.PrefixOperator | None):
+        operator: Token = self._current_token
+        
+        bp: (tuple[None, int] | None) = binding_powers['prefix'].get(operator.type)
+        
+        # Not a prefix operator
         if (not bp):
-            return
+            return None
         
         self._advance()
-        
-        operand: expressions.Expression = self._parse_expression(bp)
-        return expressions.PrefixOperator(operator, operand)
+        return expressions.PrefixOperator(operator, operand=self._parse_expression(bp[1]))
     
     def _parse_expression_enclosing_parentheses(self) -> (expressions.Expression | None):
         if (self._current_token.type != TokenType.L_PARENTHESES):
-            return
+            return None
         
         self._advance()
+        parenthesized_expr: expressions.Expression = self._parse_expression(0)
         
-        inside_expr: expressions.Expression = self._parse_expression(0)
-        
-        if (self._next_token.type != TokenType.R_PARENTHESES):
-            return
+        if (self._current_token.type != TokenType.R_PARENTHESES):
+            return None # Error
         
         self._advance()
-        
-        return inside_expr
+        return parenthesized_expr
     
-    def _parse_expression_postfix(self) -> (expressions.Expression | None):
-        pass
-    
-    def _parse_function_call(self, identifier: expressions.Expression) -> expressions.FunctionCall:
+    def _parse_expression_function_call(self, identifier: expressions.Expression) -> expressions.FunctionCall:
         if ((not isinstance(identifier, expressions.Atom)) or (identifier.token.type != TokenType.IDENTIFIER)):
             raise ParseError('function identifier', 'something else', self._current_token.line, self._current_token.column)
         
-        self._advance()
-        
         arguments: list[expressions.Expression] = []
         
-        if (self._next_token.type != TokenType.R_PARENTHESES):
-            self._advance()
-            
+        self._advance()
+        if (self._current_token.type != TokenType.R_PARENTHESES):
             arguments.append(self._parse_expression(0))
             
-            while (self._next_token.type == TokenType.COMMA):
+            while (self._current_token.type == TokenType.COMMA):
                 self._advance()
-                self._advance()
-                
                 arguments.append(self._parse_expression(0))
             
-            if (self._next_token.type != TokenType.R_PARENTHESES):
-                raise ExpressionError(self._next_token.line, self._next_token.column, self._next_token.literal)
+            if (self._current_token.type != TokenType.R_PARENTHESES):
+                raise ExpressionError(self._current_token.line, self._current_token.column, self._current_token.literal)
         
         self._advance()
-        
         return expressions.FunctionCall(identifier, arguments)
     
-    def _parse_array_indexing(self, identifier: expressions.Expression) -> expressions.ArrayIndexing:
+    def _parse_expression_array_indexing(self, identifier: expressions.Expression) -> expressions.ArrayIndexing:
         if ((not isinstance(identifier, expressions.Atom)) or (identifier.token.type != TokenType.IDENTIFIER)):
             raise ParseError('array identifier', 'something else', self._current_token.line, self._current_token.column)
         
         self._advance()
-        self._advance()
-        
         indexes: list[expressions.Expression] = [self._parse_expression(0)]
         
-        while (self._next_token.type == TokenType.COMMA):
+        while (self._current_token.type == TokenType.COMMA):
             self._advance()
-            self._advance()
-            
             indexes.append(self._parse_expression(0))
         
-        if (self._next_token.type != TokenType.R_SQ_BRACKET):
-            raise ExpressionError(self._next_token.line, self._next_token.column, self._next_token.literal)
+        if (self._current_token.type != TokenType.R_SQ_BRACKET):
+            raise ExpressionError(self._current_token.line, self._current_token.column, self._current_token.literal)
         
         self._advance()
-        
         return expressions.ArrayIndexing(identifier, indexes)
     
     def _parse_expression(self, other_bp: int) -> expressions.Expression:
-        lhs: (expressions.Expression | None) = self._parse_expression_atoms()
+        lhs: (expressions.Expression | None) = self._parse_expression_atom()
         if (not lhs):
-            lhs = self._parse_expression_prefix_operator()
+            lhs = self._parse_expression_prefix()
             if (not lhs):
                 lhs = self._parse_expression_enclosing_parentheses()
                 if (not lhs):
                     raise ExpressionError(self._current_token.line, self._current_token.column, self._current_token.literal)
         
-        while (TokenType.EOL != self._next_token.type != TokenType.EOF):
-            operator: Token = self._next_token
+        while (TokenType.EOL != self._current_token.type != TokenType.EOF):
+            operator: Token = self._current_token
             
             if (operator.type == TokenType.L_PARENTHESES):
-                lhs = self._parse_function_call(identifier=lhs)
+                lhs = self._parse_expression_function_call(identifier=lhs)
                 continue
             
             if (operator.type == TokenType.L_SQ_BRACKET):
-                lhs = self._parse_array_indexing(identifier=lhs)
+                lhs = self._parse_expression_array_indexing(identifier=lhs)
                 continue
             
-            bp: tuple[int, int] = (binding_powers['infix'].get(operator.type) or (0, 0))
-            if (other_bp >= bp[0]):
+            bp: (tuple[int, int] | None) = binding_powers['infix'].get(operator.type)
+            if ((not bp) or (other_bp >= bp[0])):
                 break
             
             self._advance()
-            self._advance()
-            
             lhs = expressions.InfixOperator(operator, lhs, rhs=self._parse_expression(bp[1]))
         
         return lhs
@@ -262,7 +254,7 @@ class Parser:
                 parsed_program.statements.append(statement)
             elif (TokenType.EOL != self._current_token.type != TokenType.EOF):
                 print(self._parse_expression(0))
-                if (TokenType.EOL != self._next_token.type != TokenType.EOF):
+                if (TokenType.EOL != self._current_token.type != TokenType.EOF):
                     print("Error.")
                 self._skip_remaining_line()
             
