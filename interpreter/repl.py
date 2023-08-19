@@ -14,7 +14,7 @@ def output_tokens(input: str) -> None:
             token = lexer.get_next_token()
         print(token)
     except Exception as error:
-        print("ERROR:", error)
+        print(error)
 
 class ShellState(enum.Enum):
     NORMAL = '>>> '

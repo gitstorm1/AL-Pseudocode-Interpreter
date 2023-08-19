@@ -4,8 +4,8 @@ from enum import Enum
 # Local imports
 from ..token import Token, TokenType
 from ..lexer import Lexer
-from ..errors import ParseError, ExpressionError
-from .ast import Node, ParsedProgram, statements, expressions
+from ..errors import ParserError
+from .ast import ParsedProgram, statements, expressions
 
 binding_powers = {
     'prefix': {
@@ -62,59 +62,11 @@ class Parser:
         self._current_token: Token = self._next_token
         self._next_token: Token = self._lexer.get_next_token()
     
-    def _skip_remaining_line(self) -> None:
-        while (TokenType.EOL != self._current_token.type != TokenType.EOF):
-            self._advance()
-    
-    def _error(self, error: ParseError, skip_line: bool) -> None:
-        self._parsed_program.errors.append(error)
-        if (skip_line):
-            self._skip_remaining_line()
-    
-    def _parse_DECLARE_ARRAY(self) -> (statements.DECLARE_ARRAY | None):
-        # Implement later
-        self._skip_remaining_line()
-    
-    def _parse_DECLARE(self) -> (statements.DECLARE | None):
-        if (self._next_token.type != TokenType.IDENTIFIER):
-            return self._error(ParseError(TokenType.IDENTIFIER.value, self._next_token.literal, self._next_token.line, self._next_token.column), skip_line=True)
-        self._advance()
-        
-        identifier: Token = self._current_token
-        
-        if (self._next_token.type != TokenType.COLON):
-            return self._error(ParseError(TokenType.COLON.value, self._next_token.literal, self._next_token.line, self._next_token.column), skip_line=True)
-        self._advance()
-        
-        if (self._next_token.type == TokenType.ARRAY):
-            return self._parse_DECLARE_ARRAY()
-        if ((self._next_token.type not in self.DATATYPE_TOKEN_TYPES) or (hasattr(self._next_token, 'is_literal'))):
-            return self._error(ParseError('a datatype', self._next_token.literal, self._next_token.line, self._next_token.column), skip_line=True)
-        self._advance()
-        
-        datatype: TokenType = self._current_token.type
-        
-        if (TokenType.EOL != self._next_token.type != TokenType.EOF):
-            return self._error(ParseError('end of line', self._next_token.literal, self._next_token.line, self._next_token.column), skip_line=True)
-        self._advance()
-        
-        return statements.DECLARE(identifier, datatype)
-    
-    def _parse_CONSTANT(self) -> (statements.CONSTANT | None):
-        if (self._next_token.type != TokenType.IDENTIFIER):
-            return self._error(ParseError(TokenType.IDENTIFIER.value, self._next_token.literal, self._next_token.line, self._next_token.column), skip_line=True)
-        self._advance()
-        
-        identifier: Token = self._current_token
-        
-        if (self._next_token.type != TokenType.EQUALS_TO):
-            return self._error(ParseError(TokenType.EQUALS_TO.value, self._next_token.literal, self._next_token.line, self._next_token.column), skip_line=True)
-        self._advance()
-        
-        # Will implement expression parsing later
-        self._skip_remaining_line()
-        
-        return statements.CONSTANT(identifier)
+    #def _skip_remaining_line(self) -> None:
+    #    while (TokenType.EOL != self._current_token.type != TokenType.EOF):
+    #        self._advance()
+    #    else:
+    #        self._advance()
     
     def _parse_statement_ASSIGNMENT(self) -> (statements.ASSIGNMENT | None):
         identifier: Token = self._current_token
@@ -126,16 +78,16 @@ class Parser:
         self._advance()
         
         expression: expressions.Expression = self._parse_expression(0)
-        self._skip_remaining_line()
+        
+        if (TokenType.EOL != self._current_token.type != TokenType.EOF):
+            raise ParserError(f"line {self._current_token.line}, col {self._current_token.column}; expected the line to end")
+        
+        self._advance()
         
         return statements.ASSIGNMENT(identifier, expression)
     
     def _parse_statement(self) -> (statements.Statement | None):
         match(self._current_token.type):
-            case TokenType.DECLARE:
-                return self._parse_DECLARE()
-            case TokenType.CONSTANT:
-                return self._parse_CONSTANT()
             case TokenType.IDENTIFIER:
                 return self._parse_statement_ASSIGNMENT()
         return None
@@ -144,10 +96,10 @@ class Parser:
         current_token: Token = self._current_token
         
         match(current_token.type):
-            case TokenType.INTEGER | TokenType.REAL | TokenType.IDENTIFIER:
+            case TokenType.IDENTIFIER:
                 self._advance()
                 return expressions.Atom(current_token)
-            case TokenType.STRING | TokenType.CHAR:
+            case TokenType.INTEGER | TokenType.REAL | TokenType.CHAR | TokenType.STRING | TokenType.BOOLEAN | TokenType.DATE:
                 if (hasattr(current_token, 'is_literal')):
                     self._advance()
                     return expressions.Atom(current_token) 
@@ -174,14 +126,14 @@ class Parser:
         parenthesized_expr: expressions.Expression = self._parse_expression(0)
         
         if (self._current_token.type != TokenType.R_PARENTHESES):
-            return None # Error
+            raise ParserError(f"line {self._current_token.line}, col {self._current_token.column}; unclosed parenthesis")
         
         self._advance()
         return parenthesized_expr
     
     def _parse_expression_function_call(self, identifier: expressions.Expression) -> expressions.FunctionCall:
         if ((not isinstance(identifier, expressions.Atom)) or (identifier.token.type != TokenType.IDENTIFIER)):
-            raise ParseError('function identifier', 'something else', self._current_token.line, self._current_token.column)
+            raise ParserError(f"line {self._current_token.line}, col {self._current_token.column}; it must be a plain function identifier")
         
         arguments: list[expressions.Expression] = []
         
@@ -194,14 +146,14 @@ class Parser:
                 arguments.append(self._parse_expression(0))
             
             if (self._current_token.type != TokenType.R_PARENTHESES):
-                raise ExpressionError(self._current_token.line, self._current_token.column, self._current_token.literal)
+                raise ParserError(f"line {self._current_token.line}, col {self._current_token.column}; unclosed parenthesis")
         
         self._advance()
         return expressions.FunctionCall(identifier, arguments)
     
     def _parse_expression_array_indexing(self, identifier: expressions.Expression) -> expressions.ArrayIndexing:
         if ((not isinstance(identifier, expressions.Atom)) or (identifier.token.type != TokenType.IDENTIFIER)):
-            raise ParseError('array identifier', 'something else', self._current_token.line, self._current_token.column)
+            raise ParserError(f"line {self._current_token.line}, col {self._current_token.column}; it must be a plain array identifier")
         
         self._advance()
         indexes: list[expressions.Expression] = [self._parse_expression(0)]
@@ -211,7 +163,7 @@ class Parser:
             indexes.append(self._parse_expression(0))
         
         if (self._current_token.type != TokenType.R_SQ_BRACKET):
-            raise ExpressionError(self._current_token.line, self._current_token.column, self._current_token.literal)
+            raise ParserError(f"line {self._current_token.line}, col {self._current_token.column}; unclosed square brackets")
         
         self._advance()
         return expressions.ArrayIndexing(identifier, indexes)
@@ -223,7 +175,7 @@ class Parser:
             if (not lhs):
                 lhs = self._parse_expression_enclosing_parentheses()
                 if (not lhs):
-                    raise ExpressionError(self._current_token.line, self._current_token.column, self._current_token.literal)
+                    raise ParserError(f"line {self._current_token.line}, col {self._current_token.column}; unexpected token {repr(self._current_token.literal)}")
         
         while (TokenType.EOL != self._current_token.type != TokenType.EOF):
             operator: Token = self._current_token
@@ -254,10 +206,7 @@ class Parser:
             if (statement):
                 parsed_program.statements.append(statement)
             elif (TokenType.EOL != self._current_token.type != TokenType.EOF):
-                print(self._parse_expression(0))
-                if (TokenType.EOL != self._current_token.type != TokenType.EOF):
-                    print("Error.")
-                self._skip_remaining_line()
+                raise ParserError(f"line {self._current_token.line}; invalid statement")
             else:
                 self._advance()
         

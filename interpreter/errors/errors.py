@@ -1,12 +1,10 @@
-class Error(Exception):
+class PseudocodeError(Exception):
     pass
 
-class ParseError(Error):
-    def __init__(self, expected: str, got: str, line: int, column: int) -> None:
-        super().__init__(f"line {line}, col {column}; expected {expected}, got {got}")
-        self.line, self.column = line, column
+class LexerError(PseudocodeError):
+    def __init__(self, message: str) -> None:
+        super().__init__('LexerError: ' + message)
 
-class ExpressionError(Error):
-    def __init__(self, line: int, column: int, token_literal: str) -> None:
-        super().__init__(f"line {line}, col {column}; unexpected token {token_literal}")
-        self.line, self.column = line, column
+class ParserError(PseudocodeError):
+    def __init__(self, message: str) -> None:
+        super().__init__('ParserError: ' + message)

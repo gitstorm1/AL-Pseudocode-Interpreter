@@ -1,5 +1,6 @@
 # Local imports
 from ..token import Token, TokenType
+from ..errors import LexerError
 
 class Lexer:
     SIMPLE_TOKEN_TYPES: dict[str, TokenType] = {
@@ -157,7 +158,7 @@ class Lexer:
                     if (number_token_type != TokenType.REAL):
                         number_token_type = TokenType.REAL
                     else:
-                        raise Exception(f"A number cannot have more than one decimal point.\n[Line = {self._line}, Column = {self._column}]")
+                        raise LexerError(f"line {self._line}, col {self._column}; more than one decimal point")
                 else:
                     break
             self._advance()
@@ -175,7 +176,7 @@ class Lexer:
             if ((self._char == quote.value) and (self._input[self._position - 1] != '\\')):
                 break
         else:
-            raise Exception(f"An extra or a missing single/double quote.\n[Line = {self._line}, Column = {self._column}]")
+            raise LexerError(f"line {self._line}, col {self._column}; unclosed {'string' if (quote == TokenType.DOUBLE_QUOTE) else 'char'} literal")
         
         return self._input[(start_pos + 1) : end_pos].replace('\\', '')
     
@@ -231,7 +232,7 @@ class Lexer:
             case TokenType.SINGLE_QUOTE.value:
                 char: str = self._read_string(TokenType.SINGLE_QUOTE)
                 if (len(char) > 1):
-                    raise Exception(f"Single quotes cannot enclose more than one character.\n[Line = {line}, Column = {column}]")
+                    raise LexerError(f"line {line}, col {column}; a char literal can only consist of one character")
                 
                 token: Token = Token(TokenType.CHAR, char, line, column)
                 token.is_literal = True
@@ -256,7 +257,7 @@ class Lexer:
                         if ((dd < 0) or (dd > 31) or (mm < 0) or (mm > 12) or (yyyy < 0) or (yyyy > 9999)):
                             raise Exception()
                     except:
-                        raise Exception(f"Incorrect date format.\nThe correct format is: D\"dd/mm/yyyy\"\n[Line = {line}, Column = {column}]")
+                        raise LexerError(f'line {line}, col {column}; incorrect date format. the correct format is D"dd/mm/yyyy"')
                     token: Token = Token(TokenType.DATE, string, line, column)
                     token.is_literal = True
                     return token
