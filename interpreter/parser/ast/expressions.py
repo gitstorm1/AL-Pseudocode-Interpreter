@@ -16,6 +16,8 @@ class Atom(Expression):
     def __str__(self) -> str:
         if (self.token.type == TokenType.STRING):
             return f'"{self.token.literal}"'
+        elif (self.token.type == TokenType.CHAR):
+            return f"'{self.token.literal}'"
         return self.token.literal
 
 class PrefixOperator(Expression):

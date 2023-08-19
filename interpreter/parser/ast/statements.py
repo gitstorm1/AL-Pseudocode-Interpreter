@@ -36,11 +36,11 @@ class CONSTANT(Statement):
         return f"[CONSTANT Statement]: 'CONSTANT {self.identifier.literal} = ?'"
 
 class ASSIGNMENT(Statement):
-    def __init__(self, identifier: Token) -> None:
+    def __init__(self, identifier: Token, expression: Expression) -> None:
         super().__init__()
         
         self.identifier: Token = identifier
-        self.expression: Expression
+        self.expression: Expression = expression
     
     def __str__(self) -> str:
-        return f"[ASSIGNMENT Statement]: '{self.identifier.literal} <- ?'"
+        return f"[ASSIGNMENT Statement]: '{self.identifier.literal} <- {str(self.expression)}'"

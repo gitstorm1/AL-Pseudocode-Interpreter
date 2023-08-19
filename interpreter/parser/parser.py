@@ -38,8 +38,6 @@ binding_powers = {
         
         TokenType.PERIOD: (21, 20),
     },
-    'postfix': {
-    },
 }
 
 class Parser:
@@ -118,17 +116,19 @@ class Parser:
         
         return statements.CONSTANT(identifier)
     
-    def _parse_ASSIGNMENT(self) -> (statements.ASSIGNMENT | None):
+    def _parse_statement_ASSIGNMENT(self) -> (statements.ASSIGNMENT | None):
         identifier: Token = self._current_token
         
         if (self._next_token.type != TokenType.ASSIGNMENT):
-            return
+            return None
+        
+        self._advance()
         self._advance()
         
-        # Will implement expression parsing later
+        expression: expressions.Expression = self._parse_expression(0)
         self._skip_remaining_line()
         
-        return statements.ASSIGNMENT(identifier)
+        return statements.ASSIGNMENT(identifier, expression)
     
     def _parse_statement(self) -> (statements.Statement | None):
         match(self._current_token.type):
@@ -137,7 +137,8 @@ class Parser:
             case TokenType.CONSTANT:
                 return self._parse_CONSTANT()
             case TokenType.IDENTIFIER:
-                return self._parse_ASSIGNMENT()
+                return self._parse_statement_ASSIGNMENT()
+        return None
     
     def _parse_expression_atom(self) -> (expressions.Atom | None):
         current_token: Token = self._current_token
@@ -146,7 +147,7 @@ class Parser:
             case TokenType.INTEGER | TokenType.REAL | TokenType.IDENTIFIER:
                 self._advance()
                 return expressions.Atom(current_token)
-            case TokenType.STRING:
+            case TokenType.STRING | TokenType.CHAR:
                 if (hasattr(current_token, 'is_literal')):
                     self._advance()
                     return expressions.Atom(current_token) 
@@ -257,7 +258,7 @@ class Parser:
                 if (TokenType.EOL != self._current_token.type != TokenType.EOF):
                     print("Error.")
                 self._skip_remaining_line()
-            
-            self._advance()
+            else:
+                self._advance()
         
         return parsed_program

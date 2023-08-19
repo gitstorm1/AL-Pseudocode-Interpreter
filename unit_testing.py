@@ -2,7 +2,12 @@
 from interpreter.parser.parser import Parser, Lexer
 
 code = """
-(3+2) AND -NOT test.member(5, 2.0, (6*5/2)) * 2 + h(1,2,0,5) - array[2, 4*3 MOD 2] + object.member.array[a] + object.member.array() & "abc" & "another"
+a+b
+hey <- "something"
+anotherhey <- 'c'
+fourth <- 2 * 2.5
+fifth <- 5.5 >= (fourth AND hey[8]) <> anotherhey
+fifth = 2
 """
 
 parser = Parser(Lexer(code))
