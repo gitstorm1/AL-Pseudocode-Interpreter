@@ -36,7 +36,7 @@ binding_powers = {
         
         TokenType.CARET: (19, 18),
         
-        TokenType.PERIOD: (20, 21),
+        TokenType.PERIOD: (21, 20),
     },
     'postfix': {
     },

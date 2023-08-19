@@ -24,7 +24,7 @@ class PrefixOperator(Expression):
         self.operator: Token = operator
         self.operand: Expression = operand
     def __str__(self) -> str:
-        return f"({self.operator.type.value}{str(self.operand)})"
+        return f"({f'{self.operator.type.value} ' if (self.operator.type == TokenType.NOT) else self.operator.type.value}{str(self.operand)})"
 
 class InfixOperator(Expression):
     def __init__(self, operator: Token, lhs: Expression, rhs: Expression) -> None:
@@ -33,7 +33,7 @@ class InfixOperator(Expression):
         self.lhs: Expression = lhs
         self.rhs: Expression = rhs
     def __str__(self) -> str:
-        return f"({str(self.lhs)} {self.operator.type.value} {str(self.rhs)})"
+        return f"({str(self.lhs)}{f' {self.operator.type.value} ' if (self.operator.type != TokenType.PERIOD) else self.operator.type.value}{str(self.rhs)})"
 
 class FunctionCall(Expression):
     def __init__(self, identifier: Expression, arguments: list[Expression]) -> None:
