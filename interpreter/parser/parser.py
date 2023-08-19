@@ -68,11 +68,11 @@ class Parser:
     #    else:
     #        self._advance()
     
-    def _parse_statement_ASSIGNMENT(self) -> (statements.ASSIGNMENT | None):
+    def _parse_statement_ASSIGNMENT(self) -> statements.ASSIGNMENT:
         identifier: Token = self._current_token
         
         if (self._next_token.type != TokenType.ASSIGNMENT):
-            return None
+            raise ParserError(f"line {self._current_token.line}; incomplete assignment statement")
         
         self._advance()
         self._advance()
