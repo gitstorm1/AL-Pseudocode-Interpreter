@@ -31,14 +31,14 @@ class DECLARE_ARRAY(DECLARE):
         return f"[DECLARE ARRAY Statement]: 'DECLARE {self.identifier.literal} : ARRAY[{part[0:-2]}] OF {self.datatype.literal}'"
 
 class CONSTANT(Statement):
-    def __init__(self, identifier: Token, expression: Expression) -> None:
+    def __init__(self, identifier: Token, value: Token) -> None:
         super().__init__()
         
         self.identifier: Token = identifier
-        self.expression: Expression = expression
+        self.value: Token = value
     
     def __str__(self) -> str:
-        return f"[CONSTANT Statement]: 'CONSTANT {self.identifier.literal} = {str(self.expression)}'"
+        return f"[CONSTANT Statement]: 'CONSTANT {self.identifier.literal} = {repr(self.value.literal)}'"
 
 class ASSIGNMENT(Statement):
     def __init__(self, identifier: Token, expression: Expression) -> None:
@@ -57,4 +57,7 @@ class ASSIGNMENT_ARRAY(ASSIGNMENT):
         self.indexes: list[Expression] = indexes
     
     def __str__(self) -> str:
-        return f"[ASSIGNMENT ARRAY Statement]: ''"
+        part: str = ''
+        for index in self.indexes:
+            part += f'{str(index)}, '
+        return f"[ASSIGNMENT ARRAY Statement]: '{self.identifier.literal}[{part[0:-2]}] <- {str(self.expression)}'"

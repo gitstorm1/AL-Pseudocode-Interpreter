@@ -169,6 +169,41 @@ class Parser:
         
         self._advance()
         
+        match(self._current_token.type):
+            case TokenType.INTEGER | TokenType.REAL | TokenType.CHAR | TokenType.STRING | TokenType.BOOLEAN | TokenType.DATE:
+                if (hasattr(self._current_token, 'is_literal')):
+                    value: Token = self._current_token
+                    
+                    self._advance()
+                    
+                    if (TokenType.EOL != self._current_token.type != TokenType.EOF):
+                        raise ParserError(f"line {self._current_token.line}, col {self._current_token.column}; expected the line to end")
+                    
+                    self._advance()
+                    
+                    return statements.CONSTANT(identifier, value)
+        
+        raise ParserError(f"line {self._current_token.line}, col {self._current_token.column}; expected a literal, got {repr(self._current_token.literal)}")
+    
+    def _parse_statement_ASSIGNMENT_ARRAY(self, identifier: Token) -> statements.ASSIGNMENT_ARRAY:
+        self._advance()
+        
+        indexes: list[expressions.Expression] = [self._parse_expression(0)]
+        
+        while (self._current_token.type == TokenType.COMMA):
+            self._advance()
+            indexes.append(self._parse_expression(0))
+        
+        if (self._current_token.type != TokenType.R_SQ_BRACKET):
+            raise ParserError(f"line {self._current_token.line}, col {self._current_token.column}; expected {repr(TokenType.R_SQ_BRACKET.value)}, got {repr(self._current_token.literal)}")
+
+        self._advance()
+        
+        if (self._current_token.type != TokenType.ASSIGNMENT):
+            raise ParserError(f"line {self._current_token.line}, col {self._current_token.column}; expected {repr(TokenType.ASSIGNMENT.value)}, got {repr(self._current_token.literal)}")
+        
+        self._advance()
+        
         expression: expressions.Expression = self._parse_expression(0)
         
         if (TokenType.EOL != self._current_token.type != TokenType.EOF):
@@ -176,10 +211,8 @@ class Parser:
         
         self._advance()
         
-        return statements.CONSTANT(identifier, expression)
+        return statements.ASSIGNMENT_ARRAY(identifier, indexes, expression)
     
-    def _parse_statement_ASSIGNMENT_ARRAY(self, identifier: Token) -> statements.ASSIGNMENT_ARRAY:
-        pass
     
     def _parse_statement_ASSIGNMENT(self) -> statements.ASSIGNMENT:
         identifier: Token = self._current_token
