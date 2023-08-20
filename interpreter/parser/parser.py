@@ -178,10 +178,16 @@ class Parser:
         
         return statements.CONSTANT(identifier, expression)
     
+    def _parse_statement_ASSIGNMENT_ARRAY(self, identifier: Token) -> statements.ASSIGNMENT_ARRAY:
+        pass
+    
     def _parse_statement_ASSIGNMENT(self) -> statements.ASSIGNMENT:
         identifier: Token = self._current_token
         
         self._advance()
+        
+        if (self._current_token.type == TokenType.L_SQ_BRACKET):
+            return self._parse_statement_ASSIGNMENT_ARRAY(identifier)
         
         if (self._current_token.type != TokenType.ASSIGNMENT):
             raise ParserError(f"line {self._current_token.line}, col {self._current_token.column}; expected {repr(TokenType.ASSIGNMENT.value)}, got {repr(self._current_token.literal)}")

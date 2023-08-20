@@ -1,4 +1,6 @@
 # Local imports
+from interpreter.parser.ast.expressions import Expression
+from interpreter.token import Token
 from .node import Node
 from .expressions import Expression
 from ...token import Token, TokenType
@@ -47,3 +49,12 @@ class ASSIGNMENT(Statement):
     
     def __str__(self) -> str:
         return f"[ASSIGNMENT Statement]: '{self.identifier.literal} <- {str(self.expression)}'"
+
+class ASSIGNMENT_ARRAY(ASSIGNMENT):
+    def __init__(self, identifier: Token, indexes: list[Expression], expression: Expression) -> None:
+        super().__init__(identifier, expression)
+        
+        self.indexes: list[Expression] = indexes
+    
+    def __str__(self) -> str:
+        return f"[ASSIGNMENT ARRAY Statement]: ''"
