@@ -270,6 +270,11 @@ class Lexer:
         if ((self._char.isalpha()) or (self._char == '_')):
             identifier: str = self._read_identifier()
             
+            if ((identifier == 'TRUE') or (identifier == 'FALSE')):
+                token: Token = Token(TokenType.BOOLEAN, identifier, line, column)
+                token.is_literal = True
+                return token
+            
             token_type: TokenType = (self.KEYWORD_TOKEN_TYPES.get(identifier) or TokenType.IDENTIFIER)
             
             return Token(token_type, identifier, line, column)
