@@ -68,8 +68,58 @@ class Parser:
     #    else:
     #        self._advance()
     
-    def _parse_statement_DECLARE_ARRAY(self) -> statements.DECLARE_ARRAY:
-        pass
+    def _parse_statement_DECLARE_ARRAY(self, identifier: Token) -> statements.DECLARE_ARRAY:
+        self._advance()
+        
+        if (self._current_token.type != TokenType.L_SQ_BRACKET):
+            raise ParserError(f"line {self._current_token.line}, col {self._current_token.column}; expected {repr(TokenType.L_SQ_BRACKET.value)}, got {repr(self._current_token.literal)}")
+        
+        self._advance()
+        
+        dimensions_sizes: list[expressions.Expression] = []
+        
+        while True:
+            if (self._current_token.literal != '1'):
+                raise ParserError(f"line {self._current_token.line}, col {self._current_token.column}; expected '{1}', got {repr(self._current_token.literal)}")
+            
+            self._advance()
+            
+            if (self._current_token.type != TokenType.COLON):
+                raise ParserError(f"line {self._current_token.line}, col {self._current_token.column}; expected {repr(TokenType.COLON.value)}, got {repr(self._current_token.literal)}")
+            
+            self._advance()
+            
+            dimensions_sizes.append(self._parse_expression(0))
+            
+            if (self._current_token.type == TokenType.COMMA):
+                self._advance()
+                continue
+            
+            if (self._current_token.type != TokenType.R_SQ_BRACKET):
+                raise ParserError(f"line {self._current_token.line}, col {self._current_token.column}; expected {repr(TokenType.R_SQ_BRACKET.value)}, got {repr(self._current_token.literal)}")
+            
+            self._advance()
+            break
+        
+        if (self._current_token.type != TokenType.OF):
+            raise ParserError(f"line {self._current_token.line}, col {self._current_token.column}; expected {repr(TokenType.OF.value)}, got {repr(self._current_token.literal)}")
+        
+        self._advance()
+        
+        match(self._current_token.type):
+            case TokenType.INTEGER | TokenType.REAL | TokenType.CHAR | TokenType.STRING | TokenType.BOOLEAN | TokenType.DATE | TokenType.IDENTIFIER:
+                datatype: Token = self._current_token
+                
+                self._advance()
+                
+                if (TokenType.EOL != self._current_token.type != TokenType.EOF):
+                    raise ParserError(f"line {self._current_token.line}, col {self._current_token.column}; expected the line to end")
+                
+                self._advance()
+                
+                return statements.DECLARE_ARRAY(identifier, dimensions_sizes, datatype)
+        
+        raise ParserError(f"line {self._current_token.line}, col {self._current_token.column}; expected a datatype, got {repr(self._current_token.literal)}")
     
     def _parse_statement_DECLARE(self) -> statements.DECLARE:
         self._advance()
@@ -87,7 +137,7 @@ class Parser:
         self._advance()
         
         if (self._current_token.type == TokenType.ARRAY):
-            return self._parse_statement_DECLARE_ARRAY()
+            return self._parse_statement_DECLARE_ARRAY(identifier)
         
         match(self._current_token.type):
             case TokenType.INTEGER | TokenType.REAL | TokenType.CHAR | TokenType.STRING | TokenType.BOOLEAN | TokenType.DATE | TokenType.IDENTIFIER:

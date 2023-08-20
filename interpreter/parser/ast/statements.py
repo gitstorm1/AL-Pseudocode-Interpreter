@@ -17,13 +17,16 @@ class DECLARE(Statement):
         return f"[DECLARE Statement]: 'DECLARE {self.identifier.literal} : {self.datatype.literal}'"
 
 class DECLARE_ARRAY(DECLARE):
-    def __init__(self, identifier: Token, size: tuple[int, int], datatype: Token) -> None:
+    def __init__(self, identifier: Token, dimensions_sizes: list[Expression], datatype: Token) -> None:
         super().__init__(identifier, datatype)
         
-        self.size: tuple[int, int] = size
+        self.dimensions_sizes: list[tuple[Expression]] = dimensions_sizes
     
     def __str__(self) -> str:
-        return f"[DECLARE ARRAY Statement]: 'DECLARE {self.identifier.literal} : ARRAY[{self.size[0]}:{self.size[1]}] OF {self.datatype.literal}'"
+        part: str = ''
+        for size in self.dimensions_sizes:
+            part += f'1:{str(size)}, '
+        return f"[DECLARE ARRAY Statement]: 'DECLARE {self.identifier.literal} : ARRAY[{part[0:-2]}] OF {self.datatype.literal}'"
 
 class CONSTANT(Statement):
     def __init__(self, identifier: Token, expression: Expression) -> None:
