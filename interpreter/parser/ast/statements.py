@@ -7,23 +7,23 @@ class Statement(Node):
     pass
 
 class DECLARE(Statement):
-    def __init__(self, identifier: Token, datatype: TokenType) -> None:
+    def __init__(self, identifier: Token, datatype: Token) -> None:
         super().__init__()
         
         self.identifier: Token = identifier
-        self.datatype: TokenType = datatype
+        self.datatype: Token = datatype
     
     def __str__(self) -> str:
-        return f"[DECLARE Statement]: 'DECLARE {self.identifier.literal} : {self.datatype.value}'"
+        return f"[DECLARE Statement]: 'DECLARE {self.identifier.literal} : {self.datatype.literal}'"
 
 class DECLARE_ARRAY(DECLARE):
-    def __init__(self, identifier: Token, size: tuple[int, int], datatype: TokenType) -> None:
+    def __init__(self, identifier: Token, size: tuple[int, int], datatype: Token) -> None:
         super().__init__(identifier, datatype)
         
         self.size: tuple[int, int] = size
     
     def __str__(self) -> str:
-        return f"[DECLARE ARRAY Statement]: 'DECLARE {self.identifier.literal} : ARRAY[{self.size[0]}:{self.size[1]}] OF {self.datatype.value}'"
+        return f"[DECLARE ARRAY Statement]: 'DECLARE {self.identifier.literal} : ARRAY[{self.size[0]}:{self.size[1]}] OF {self.datatype.literal}'"
 
 class CONSTANT(Statement):
     def __init__(self, identifier: Token, expression: Expression) -> None:

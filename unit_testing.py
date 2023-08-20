@@ -9,7 +9,7 @@ fourth <- 2 * 2.5
 fifth <- 5.5 >= (fourth AND hey[8]) <> anotherhey
 fifth <- a = b
 CONSTANT a = func() & str[2,4] + 'c'
-
+DECLARE hey : ARRAY[]
 """
 
 print("********************")
