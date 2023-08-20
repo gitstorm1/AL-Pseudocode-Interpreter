@@ -26,14 +26,14 @@ class DECLARE_ARRAY(DECLARE):
         return f"[DECLARE ARRAY Statement]: 'DECLARE {self.identifier.literal} : ARRAY[{self.size[0]}:{self.size[1]}] OF {self.datatype.value}'"
 
 class CONSTANT(Statement):
-    def __init__(self, identifier: Token) -> None:
+    def __init__(self, identifier: Token, expression: Expression) -> None:
         super().__init__()
         
         self.identifier: Token = identifier
-        self.expression: Expression
+        self.expression: Expression = expression
     
     def __str__(self) -> str:
-        return f"[CONSTANT Statement]: 'CONSTANT {self.identifier.literal} = ?'"
+        return f"[CONSTANT Statement]: 'CONSTANT {self.identifier.literal} = {str(self.expression)}'"
 
 class ASSIGNMENT(Statement):
     def __init__(self, identifier: Token, expression: Expression) -> None:

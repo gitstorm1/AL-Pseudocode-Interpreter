@@ -68,13 +68,38 @@ class Parser:
     #    else:
     #        self._advance()
     
+    def _parse_statement_CONSTANT(self) -> statements.CONSTANT:
+        self._advance()
+        
+        if (self._current_token.type != TokenType.IDENTIFIER):
+            raise ParserError(f"line {self._current_token.line}, col {self._current_token.column}; expected identifier, got {repr(self._current_token.literal)}")
+        
+        identifier: Token = self._current_token
+        
+        self._advance()
+        
+        if (self._current_token.type != TokenType.EQUALS_TO):
+            raise ParserError(f"line {self._current_token.line}, col {self._current_token.column}; expected {repr(TokenType.EQUALS_TO.value)}, got {repr(self._current_token.literal)}")
+        
+        self._advance()
+        
+        expression: expressions.Expression = self._parse_expression(0)
+        
+        if (TokenType.EOL != self._current_token.type != TokenType.EOF):
+            raise ParserError(f"line {self._current_token.line}, col {self._current_token.column}; expected the line to end")
+        
+        self._advance()
+        
+        return statements.CONSTANT(identifier, expression)
+    
     def _parse_statement_ASSIGNMENT(self) -> statements.ASSIGNMENT:
         identifier: Token = self._current_token
         
-        if (self._next_token.type != TokenType.ASSIGNMENT):
-            raise ParserError(f"line {self._current_token.line}; incomplete assignment statement")
-        
         self._advance()
+        
+        if (self._current_token.type != TokenType.ASSIGNMENT):
+            raise ParserError(f"line {self._current_token.line}, col {self._current_token.column}; expected {repr(TokenType.ASSIGNMENT.value)}, got {repr(self._current_token.literal)}")
+        
         self._advance()
         
         expression: expressions.Expression = self._parse_expression(0)
@@ -88,6 +113,8 @@ class Parser:
     
     def _parse_statement(self) -> (statements.Statement | None):
         match(self._current_token.type):
+            case TokenType.CONSTANT:
+                return self._parse_statement_CONSTANT()
             case TokenType.IDENTIFIER:
                 return self._parse_statement_ASSIGNMENT()
         return None
