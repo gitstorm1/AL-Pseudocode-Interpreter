@@ -70,3 +70,15 @@ class INPUT(Statement):
     
     def __str__(self) -> str:
         return f"[INPUT Statement]: 'INPUT {self.identifier.literal}'"
+
+class OUTPUT(Statement):
+    def __init__(self, expressions: list[Expression]) -> None:
+        super().__init__()
+        
+        self.expressions: list[Expression] = expressions
+    
+    def __str__(self) -> str:
+        part: str = ''
+        for expr in self.expressions:
+            part += f'{str(expr)}, '
+        return f"[OUTPUT Statement]: 'OUTPUT {part[0:-2]}'"

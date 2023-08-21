@@ -21,7 +21,8 @@ OUTPUT "Abcd", "Abcd", Abcd, other
 OUTPUT "Join " & " strings " & " together."
 OUTPUT anyexpression * b MOD 2
 OUTPUT 'c'
-OUTPUT "abc" .
+OUTPUT "abc"
+//OUTPUT
 
 INPUT Abc
 """

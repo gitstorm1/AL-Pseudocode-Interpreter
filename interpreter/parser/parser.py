@@ -250,7 +250,21 @@ class Parser:
             raise ParserError(f"line {self._current_token.line}, col {self._current_token.column}; expected the line to end")
         
         return statements.INPUT(identifier)
+    
+    def _parse_statement_OUTPUT(self) -> statements.OUTPUT:
+        self._advance()
         
+        exprs: list[expressions.Expression] = [self._parse_expression(0)]
+        
+        while (self._current_token.type == TokenType.COMMA):
+            self._advance()
+            exprs.append(self._parse_expression(0))
+        
+        if (TokenType.EOL != self._current_token.type != TokenType.EOF):
+            raise ParserError(f"line {self._current_token.line}, col {self._current_token.column}; expected the line to end")
+        
+        return statements.OUTPUT(exprs)
+    
     def _parse_statement(self) -> (statements.Statement | None):
         match(self._current_token.type):
             case TokenType.DECLARE:
@@ -261,6 +275,8 @@ class Parser:
                 return self._parse_statement_ASSIGNMENT()
             case TokenType.INPUT:
                 return self._parse_statement_INPUT()
+            case TokenType.OUTPUT:
+                return self._parse_statement_OUTPUT()
         return None
     
     def _parse_expression_atom(self) -> (expressions.Atom | None):
