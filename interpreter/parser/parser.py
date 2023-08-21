@@ -236,6 +236,21 @@ class Parser:
         
         return statements.ASSIGNMENT(identifier, expression)
     
+    def _parse_statement_INPUT(self) -> statements.INPUT:
+        self._advance()
+        
+        if (self._current_token.type != TokenType.IDENTIFIER):
+            raise ParserError(f"line {self._current_token.line}, col {self._current_token.column}; expected {repr(TokenType.IDENTIFIER.value)}, got {repr(self._current_token.literal)}")
+
+        identifier: Token = self._current_token
+        
+        self._advance()
+        
+        if (TokenType.EOL != self._current_token.type != TokenType.EOF):
+            raise ParserError(f"line {self._current_token.line}, col {self._current_token.column}; expected the line to end")
+        
+        return statements.INPUT(identifier)
+        
     def _parse_statement(self) -> (statements.Statement | None):
         match(self._current_token.type):
             case TokenType.DECLARE:
@@ -244,6 +259,8 @@ class Parser:
                 return self._parse_statement_CONSTANT()
             case TokenType.IDENTIFIER:
                 return self._parse_statement_ASSIGNMENT()
+            case TokenType.INPUT:
+                return self._parse_statement_INPUT()
         return None
     
     def _parse_expression_atom(self) -> (expressions.Atom | None):

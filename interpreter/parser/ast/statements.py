@@ -61,3 +61,12 @@ class ASSIGNMENT_ARRAY(ASSIGNMENT):
         for index in self.indexes:
             part += f'{str(index)}, '
         return f"[ASSIGNMENT ARRAY Statement]: '{self.identifier.literal}[{part[0:-2]}] <- {str(self.expression)}'"
+
+class INPUT(Statement):
+    def __init__(self, identifier: Token) -> None:
+        super().__init__()
+        
+        self.identifier: Token = identifier
+    
+    def __str__(self) -> str:
+        return f"[INPUT Statement]: 'INPUT {self.identifier.literal}'"
