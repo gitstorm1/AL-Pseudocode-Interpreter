@@ -25,6 +25,45 @@ OUTPUT "abc"
 //OUTPUT
 
 INPUT Abc
+
+IF 5.2 THEN
+    OUTPUT "Test"
+    OUTPUT "Test"
+ENDIF
+"""
+"""
+IF (a * b) + 2 = 30 THEN
+    OUTPUT "Yes"
+    OUTPUT "Yes"
+ELSE
+    OUTPUT "ELSE"
+    OUTPUT "ELSE"
+ENDIF
+
+IF (a * b) MOD 2 = 15 THEN
+    OUTPUT "Yes1"
+    OUTPUT "Yes1"
+ELSEIF (a * b) + 2 = 30 THEN
+    OUTPUT "ELSEIF"
+    OUTPUT "ELSEIF"
+ELSE
+    IF TRUE THEN
+        OUTPUT "ELSE"
+    ENDIF
+ENDIF
+
+IF ChallengerScore > ChampionScore THEN
+    IF ChallengerScore > HighestScore THEN
+        OUTPUT ChallengerName, " is champion and highest scorer"
+    ELSE
+        OUTPUT ChallengerName, " is the new champion"
+    ENDIF
+ELSE
+    OUTPUT ChampionName, " is still the champion"
+    IF ChampionScore > HighestScore THEN
+        OUTPUT ChampionName, " is also the highest scorer"
+    ENDIF
+ENDIF
 """
 
 print("********************")

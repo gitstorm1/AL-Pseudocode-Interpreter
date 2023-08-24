@@ -82,3 +82,17 @@ class OUTPUT(Statement):
         for expr in self.expressions:
             part += f'{str(expr)}, '
         return f"[OUTPUT Statement]: 'OUTPUT {part[0:-2]}'"
+
+class IF(Statement):
+    def __init__(self, branches: list[tuple[Expression, list[Statement]]]) -> None:
+        super().__init__()
+        
+        self.branches: list[tuple[Expression, list[Statement]]] = branches
+    
+    def __str__(self) -> str:
+        value: str = '\n[IF STATEMENT]:\n'
+        for index, branch in enumerate(self.branches):
+            value += f"Condition {index + 1}: '{str(branch[0])}'\n"
+            for statement in branch[1]:
+                value += str(statement) + '\n'
+        return value

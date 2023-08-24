@@ -249,6 +249,8 @@ class Parser:
         if (TokenType.EOL != self._current_token.type != TokenType.EOF):
             raise ParserError(f"line {self._current_token.line}, col {self._current_token.column}; expected the line to end")
         
+        self._advance()
+        
         return statements.INPUT(identifier)
     
     def _parse_statement_OUTPUT(self) -> statements.OUTPUT:
@@ -263,21 +265,65 @@ class Parser:
         if (TokenType.EOL != self._current_token.type != TokenType.EOF):
             raise ParserError(f"line {self._current_token.line}, col {self._current_token.column}; expected the line to end")
         
+        self._advance()
+        
         return statements.OUTPUT(exprs)
+    
+    def _parse_statement_IF(self) -> statements.IF:
+        self._advance()
+        
+        condition: expressions.Expression = self._parse_expression(0)
+        
+        if (self._current_token.type != TokenType.THEN):
+            raise ParserError(f"line {self._current_token.line}, col {self._current_token.column}; expected {repr(TokenType.THEN.value)}, got {repr(self._current_token.literal)}")
+        
+        self._advance()
+        
+        if (self._current_token.type != TokenType.EOL):
+            raise ParserError(f"line {self._current_token.line}, col {self._current_token.column}; expected the line to end")
+        
+        self._advance()
+        
+        in_condition: list[statements.Statement] = []
+        
+        while (self._current_token.type != TokenType.EOF):
+            statement: (statements.Statement | None) = self._parse_statement()
+            
+            if (statement):
+                in_condition.append(statement)
+            
+            if (self._current_token.type == TokenType.ENDIF):
+                self._advance()
+                if (self._current_token.type != TokenType.EOL):
+                    raise ParserError(f"line {self._current_token.line}, col {self._current_token.column}; expected the line to end")
+                break
+        else:
+            raise ParserError(f"line {self._current_token.line}, col {self._current_token.column}; unclosed IF block")
+        
+        self._advance()
+        return statements.IF([(condition, in_condition)])
     
     def _parse_statement(self) -> (statements.Statement | None):
         match(self._current_token.type):
+            case TokenType.EOL:
+                return self._advance()
+            
             case TokenType.DECLARE:
                 return self._parse_statement_DECLARE()
             case TokenType.CONSTANT:
                 return self._parse_statement_CONSTANT()
             case TokenType.IDENTIFIER:
                 return self._parse_statement_ASSIGNMENT()
+            
             case TokenType.INPUT:
                 return self._parse_statement_INPUT()
             case TokenType.OUTPUT:
                 return self._parse_statement_OUTPUT()
-        return None
+            
+            case TokenType.IF:
+                return self._parse_statement_IF()
+        
+        raise ParserError(f"line {self._current_token.line}; invalid statement")
     
     def _parse_expression_atom(self) -> (expressions.Atom | None):
         current_token: Token = self._current_token
@@ -389,12 +435,6 @@ class Parser:
         
         while (self._current_token.type != TokenType.EOF):
             statement: (statements.Statement | None) = self._parse_statement()
-            
-            if (statement):
-                parsed_program.statements.append(statement)
-            elif (TokenType.EOL != self._current_token.type != TokenType.EOF):
-                raise ParserError(f"line {self._current_token.line}; invalid statement")
-            else:
-                self._advance()
+            (statement and parsed_program.statements.append(statement))
         
         return parsed_program
